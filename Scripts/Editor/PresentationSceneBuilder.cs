@@ -26,7 +26,9 @@ namespace ViitorCloud.KmaxPresentation.Editor {
         private const string RetailRoot = "Assets/Games/kmax-retail-products/Prefabs/";
         private const string EducationRoot = "Assets/Games/kmax-education/Prefabs/";
 
-                private const string ThemeBackdropTexturePath = "Assets/Games/kmax-presentation/Backdrop/PresentationBackdrop_Theme.png";
+        // Owner showroom environment from Lamborghini download folder (curtain wall, glossy floor, ceiling softbox)
+        private static readonly bool IncludeShowroomEnvironment = true;
+        private const string ThemeBackdropTexturePath = "Assets/Games/kmax-presentation/Backdrop/PresentationBackdrop_Theme.png";
         private const string ThemeBackdropMaterialPath = "Assets/Games/kmax-presentation/Backdrop/PresentationBackdrop.mat";
         private static readonly Color Backdrop = new Color(0.143f, 0.167f, 0.210f, 1.0f);
 
@@ -50,7 +52,7 @@ namespace ViitorCloud.KmaxPresentation.Editor {
         private static List<Entry> BuildCatalog() {
             List<Entry> list = new List<Entry>();
 
-            list.Add(new Entry { group = "Biology", title = "Human Body", subtitle = "Biology  •  Whole-body atlas", description = "A full human body built from separate systems, with the organs glowing in turn and the layers drawn apart.", prefabPath = AnatomyRoot + "body.prefab", anatomy = "body", show = PresentationShow.Explode, fit = 0.78f, tilt = 3.0f });
+            list.Add(new Entry { group = "Biology", title = "Human Body", subtitle = "Biology  •  Whole-body atlas", description = "A full human body built from separate systems, with the organs glowing in turn and the layers drawn apart.", prefabPath = AnatomyRoot + "body.prefab", anatomy = "body", show = PresentationShow.Explode, fit = 0.72f, tilt = 3.0f });
             list.Add(new Entry { group = "Biology", title = "Heart", subtitle = "Biology  •  The body's pump", description = "The heart pushes blood around the body, beating about once every second at rest.", prefabPath = AnatomyRoot + "heart.prefab", anatomy = "heart", fit = 0.64f, tilt = 6.0f });
             list.Add(new Entry { group = "Biology", title = "Brain", subtitle = "Biology  •  Command centre", description = "The brain controls movement, memory and thought through billions of connected nerve cells.", prefabPath = AnatomyRoot + "brain.prefab", anatomy = "brain", pulse = true, fit = 0.64f, tilt = 10.0f });
             list.Add(new Entry { group = "Biology", title = "Ear", subtitle = "Biology  •  Hearing and balance", description = "The ear turns sound waves into nerve signals and helps the body keep its balance.", prefabPath = AnatomyRoot + "ear.prefab", anatomy = "ear", fit = 0.64f, tilt = 6.0f });
@@ -66,33 +68,42 @@ namespace ViitorCloud.KmaxPresentation.Editor {
             list.Add(new Entry { group = "Automobile", title = "Volvo S90", subtitle = "Automobile  •  Luxury saloon", description = "A Scandinavian luxury saloon, modelled in detail inside and out.", prefabPath = "Assets/Games/kmax-display-example/Model/VOLVO/Volvo S90.fbx", fit = 0.64f, tilt = 0.0f, spin = 20.0f });
             list.Add(new Entry { group = "Automobile", title = "Volvo C40 Recharge", subtitle = "Automobile  •  Electric crossover", description = "An all-electric compact crossover with a sloping roofline.", prefabPath = "Assets/Games/kmax-display-example/Model/VolvoC40/Prefabs/VolvoC40Preview.prefab", fit = 0.64f, tilt = 0.0f, spin = 20.0f });
             list.Add(new Entry { group = "Automobile", title = "Ford Mustang GT", subtitle = "Automobile  •  American muscle", description = "The Mustang GT, a V8 coupe and long-standing American performance icon.", prefabPath = "Assets/Games/kmax-display-example/Model/FordMustangGT/Prefabs/FordMustangGTPreview.prefab", fit = 0.64f, tilt = 0.0f, spin = 20.0f });
+            list.Add(new Entry { group = "Automobile", title = "Lamborghini Murciélago", subtitle = "Automobile  •  Italian supercar", description = "A mid-engine V12 Italian supercar with all-wheel drive, launched in 2001 as the successor to the Diablo.", prefabPath = "Assets/Games/kmax-presentation/Lamborghini/Lamborghini_Murcielago.prefab", fit = 0.64f, tilt = 0.0f, spin = 20.0f });
 
             list.Add(new Entry { group = "Electronics", title = "LM358 Fader", subtitle = "Electronics  •  Smooth dimming", description = "An LM358 op-amp circuit that fades an LED up and down smoothly.", prefabPath = PcbRoot + "Exhibit_LM358Fader.prefab", euler = new Vector3(45.0f, 180.0f, 0.0f), fit = 0.64f, tilt = 0.0f, spin = 0.0f });
 
             string[] armchairs = new string[] { "02", "03", "04", "05", "06" };
+            string[] armchairNames = new string[] { "Oslo Armchair", "Milan Armchair", "Kyoto Armchair", "Aspen Armchair", "Lisbon Armchair" };
             for (int i = 0; i < armchairs.Length; i++) {
-                list.Add(new Entry { group = "Retail", title = "Armchair " + armchairs[i], subtitle = "Retail  •  Seating", description = "An armchair from the range, turned slowly so every angle can be seen.", prefabPath = RetailRoot + "Armchair_" + armchairs[i] + ".prefab", fit = 0.64f, tilt = -20.0f, sway = true, swayDeg = 38.0f });
+                list.Add(new Entry { group = "Retail", title = armchairNames[i], subtitle = "Retail  •  Seating", description = "An armchair from the range, turned slowly so every angle can be seen.", prefabPath = RetailRoot + "Armchair_" + armchairs[i] + ".prefab", fit = 0.64f, tilt = -20.0f, sway = true, swayDeg = 38.0f });
             }
             string[] beds = new string[] { "02", "03", "05", "06" };
+            string[] bedNames = new string[] { "Nordic Bed", "Verona Bed", "Haven Bed", "Cascade Bed" };
             for (int i = 0; i < beds.Length; i++) {
-                list.Add(new Entry { group = "Retail", title = "Bed " + beds[i], subtitle = "Retail  •  Bedroom", description = "A bed from the bedroom range, turned slowly so every side can be seen.", prefabPath = RetailRoot + "Bed_" + beds[i] + ".prefab", fit = 0.64f, tilt = -20.0f, sway = true, swayDeg = 38.0f });
+                list.Add(new Entry { group = "Retail", title = bedNames[i], subtitle = "Retail  •  Bedroom", description = "A bed from the bedroom range, turned slowly so every side can be seen.", prefabPath = RetailRoot + "Bed_" + beds[i] + ".prefab", fit = 0.64f, tilt = -20.0f, sway = true, swayDeg = 38.0f });
             }
 
             string[] diningTables = new string[] { "02", "03", "04", "06" };
+            string[] diningNames = new string[] { "Savoy Dining Table", "Arden Dining Table", "Marlow Dining Table", "Tuscan Dining Table" };
             for (int i = 0; i < diningTables.Length; i++) {
-                list.Add(new Entry { group = "Retail", title = "Dining Table " + diningTables[i], subtitle = "Retail  •  Dining", description = "A dining table from the range, turned slowly so every side can be seen.", prefabPath = RetailRoot + "Dining_table_" + diningTables[i] + ".prefab", fit = 0.55f, tilt = -20.0f });
+                list.Add(new Entry { group = "Retail", title = diningNames[i], subtitle = "Retail  •  Dining", description = "A dining table from the range, turned slowly so every side can be seen.", prefabPath = RetailRoot + "Dining_table_" + diningTables[i] + ".prefab", fit = 0.55f, tilt = -20.0f });
             }
             string[] coffeeTables = new string[] { "03", "17", "18", "19" };
+            string[] coffeeNames = new string[] { "Halo Coffee Table", "Orbit Coffee Table", "Terra Coffee Table", "Luna Coffee Table" };
             for (int i = 0; i < coffeeTables.Length; i++) {
-                list.Add(new Entry { group = "Retail", title = "Coffee Table " + coffeeTables[i], subtitle = "Retail  •  Living room", description = "A coffee table from the range, turned slowly so every side can be seen.", prefabPath = RetailRoot + "Coffee_table_" + coffeeTables[i] + ".prefab", fit = 0.51f, tilt = -20.0f });
+                float fit = coffeeTables[i] == "17" ? 0.44f : 0.51f;
+                float tilt = coffeeTables[i] == "17" ? -14.0f : -20.0f;
+                list.Add(new Entry { group = "Retail", title = coffeeNames[i], subtitle = "Retail  •  Living room", description = "A coffee table from the range, turned slowly so every side can be seen.", prefabPath = RetailRoot + "Coffee_table_" + coffeeTables[i] + ".prefab", fit = fit, tilt = tilt });
             }
             string[] tvUnits = new string[] { "02", "03", "04" };
+            string[] tvNames = new string[] { "Vista TV Unit", "Echo TV Unit", "Aura TV Unit" };
             for (int i = 0; i < tvUnits.Length; i++) {
-                list.Add(new Entry { group = "Retail", title = "TV Unit " + tvUnits[i], subtitle = "Retail  •  Living room", description = "A TV unit from the range, shown from the front and both sides.", prefabPath = RetailRoot + "TV_unit_" + tvUnits[i] + ".prefab", fit = 0.55f, tilt = -20.0f, sway = true, swayDeg = 36.0f });
+                list.Add(new Entry { group = "Retail", title = tvNames[i], subtitle = "Retail  •  Living room", description = "A TV unit from the range, shown from the front and both sides.", prefabPath = RetailRoot + "TV_unit_" + tvUnits[i] + ".prefab", fit = 0.55f, tilt = -20.0f, sway = true, swayDeg = 36.0f });
             }
             string[] wardrobes = new string[] { "02", "03" };
+            string[] wardrobeNames = new string[] { "Atlas Wardrobe", "Cedar Wardrobe" };
             for (int i = 0; i < wardrobes.Length; i++) {
-                list.Add(new Entry { group = "Retail", title = "Wardrobe " + wardrobes[i], subtitle = "Retail  •  Bedroom", description = "A wardrobe from the range, shown from the front and both sides.", prefabPath = RetailRoot + "Wardrobe_" + wardrobes[i] + ".prefab", fit = 0.69f, tilt = -20.0f, sway = true, swayDeg = 36.0f });
+                list.Add(new Entry { group = "Retail", title = wardrobeNames[i], subtitle = "Retail  •  Bedroom", description = "A wardrobe from the range, shown from the front and both sides.", prefabPath = RetailRoot + "Wardrobe_" + wardrobes[i] + ".prefab", fit = 0.69f, tilt = -20.0f, sway = true, swayDeg = 36.0f });
             }
 
             list.Add(new Entry { group = "Education", title = "Planet Earth", subtitle = "Education  •  Physics", description = "Earth turns once every 24 hours, giving us day and night.", prefabPath = EducationRoot + "Earth.prefab", show = PresentationShow.NativeMotion, fit = 0.74f, tilt = 8.0f, spin = 8.0f });
@@ -168,23 +179,28 @@ namespace ViitorCloud.KmaxPresentation.Editor {
                 items.Add(item);
             }
 
-            // Lighting exactly as the experience scenes: soft key, cool fill, bright rim, flat studio ambient (the earlier build was over-lit).
+            // Balanced studio lighting: soft key, cool fill, crisp rim, flat ambient (avoids white table top blow-out).
             RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
             RenderSettings.ambientLight = new Color(0.35f, 0.38f, 0.45f, 1.0f);
             RenderSettings.reflectionIntensity = 0.35f;
-            ConfigureLight("Key Light", "Directional Light", 1.15f, new Color(1.0f, 0.98f, 0.94f, 1.0f), Quaternion.Euler(34.0f, 200.0f, 0.0f), LightShadows.Soft);
-            ConfigureLight("Fill Light", null, 0.5f, new Color(0.78f, 0.86f, 1.0f, 1.0f), Quaternion.Euler(16.0f, 300.0f, 0.0f), LightShadows.None);
-            ConfigureLight("Rim Light", null, 0.95f, new Color(0.8f, 0.88f, 1.0f, 1.0f), Quaternion.Euler(18.0f, 40.0f, 0.0f), LightShadows.None);
+            ConfigureLight("Key Light", "Directional Light", 1.20f, new Color(1.0f, 0.96f, 0.90f, 1.0f), Quaternion.Euler(38.0f, 205.0f, 0.0f), LightShadows.Soft);
+            ConfigureLight("Fill Light", null, 0.50f, new Color(0.70f, 0.82f, 0.98f, 1.0f), Quaternion.Euler(18.0f, 320.0f, 0.0f), LightShadows.None);
+            ConfigureLight("Rim Light", null, 1.10f, new Color(0.82f, 0.90f, 1.0f, 1.0f), Quaternion.Euler(22.0f, 40.0f, 0.0f), LightShadows.None);
 
-            // A soft point light in front of the stage adds the specular highlight that makes glossy surfaces read as glossy.
+            // Overhead spotlight creating a soft circular pool of light on the floor under the center model
             GameObject stageGo = new GameObject("StageLight");
             Light stage = stageGo.AddComponent<Light>();
-            stage.type = LightType.Point;
-            stage.intensity = 0.9f;
-            stage.range = 9.0f;
-            stage.color = new Color(0.92f, 0.96f, 1.0f, 1.0f);
-            stage.shadows = LightShadows.None;
-            stageGo.transform.position = new Vector3(0.6f, 1.6f, -2.6f);
+            stage.type = LightType.Spot;
+            stage.intensity = 2.0f;
+            stage.range = 6.5f;
+            stage.spotAngle = 65.0f;
+            stage.innerSpotAngle = 32.0f;
+            stage.color = new Color(0.96f, 0.98f, 1.0f, 1.0f);
+            stage.shadows = LightShadows.Soft;
+            stage.shadowBias = 0.03f;
+            stage.shadowNormalBias = 0.30f;
+            stageGo.transform.position = new Vector3(0.0f, 2.6f, -0.1f);
+            stageGo.transform.rotation = Quaternion.Euler(82.0f, 0.0f, 0.0f);
 
             // The presentation reads no input: remove the viewer fly controller and stylus input, and hide the stylus tip and beam.
             ViewerFlyController fly = Object.FindFirstObjectByType<ViewerFlyController>();
@@ -226,8 +242,27 @@ namespace ViitorCloud.KmaxPresentation.Editor {
                 renderCam.backgroundColor = Backdrop;
             }
 
-            BuildBackdrop();
+            if (IncludeShowroomEnvironment) {
+                BuildBackdrop();
+            }
             BuildThemeBackdrop();
+
+            GameObject postFxGo = GameObject.Find("PostFX");
+            if (postFxGo != null) {
+                UnityEngine.Rendering.Volume vol = postFxGo.GetComponent<UnityEngine.Rendering.Volume>();
+                if (vol != null) {
+                    UnityEngine.Rendering.VolumeProfile profile = AssetDatabase.LoadAssetAtPath<UnityEngine.Rendering.VolumeProfile>("Assets/Games/kmax-presentation/Rendering/PresentationPostFX.asset");
+                    if (profile != null) {
+                        vol.sharedProfile = profile;
+                        UnityEngine.Rendering.Universal.ColorAdjustments colorAdj;
+                        if (profile.TryGet<UnityEngine.Rendering.Universal.ColorAdjustments>(out colorAdj)) {
+                            colorAdj.postExposure.overrideState = true;
+                            colorAdj.postExposure.value = -0.15f;
+                            EditorUtility.SetDirty(profile);
+                        }
+                    }
+                }
+            }
 
             // Carousel stage: centre model 3 m from the camera (20% farther than the first pass, owner request).
             GameObject carousel = new GameObject("Carousel");
@@ -235,7 +270,27 @@ namespace ViitorCloud.KmaxPresentation.Editor {
 
             MissionControlSceneBuilder.LoadGlassSprites();
             GameObject uiGo = new GameObject("UI", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
-            MissionControlSceneBuilder.ConfigureWorldCanvas(uiGo, renderCam);
+            uiGo.transform.SetParent(renderCam.transform, false);
+            uiGo.transform.localPosition = new Vector3(0.0f, 0.0f, 0.50f);
+            uiGo.transform.localRotation = Quaternion.identity;
+            uiGo.transform.localScale = Vector3.one * 0.00017989584f;
+
+            Canvas canvas = uiGo.GetComponent<Canvas>();
+            canvas.renderMode = RenderMode.WorldSpace;
+            canvas.worldCamera = renderCam;
+            canvas.overrideSorting = true;
+            canvas.sortingOrder = 100;
+
+            uiGo.AddComponent<KmaxXR.KmaxUIRaycaster>();
+            uiGo.AddComponent<KmaxXR.UIScaler>();
+            uiGo.AddComponent<UiAlwaysOnTop>();
+
+            RectTransform uiRect = uiGo.GetComponent<RectTransform>();
+            uiRect.sizeDelta = new Vector2(1920.0f, 1080.0f);
+
+            CanvasScaler scaler = uiGo.GetComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
+
             GraphicRaycaster uiRaycaster = uiGo.GetComponent<GraphicRaycaster>();
             uiRaycaster.enabled = false;
 
@@ -245,6 +300,11 @@ namespace ViitorCloud.KmaxPresentation.Editor {
             CanvasGroup group = card.AddComponent<CanvasGroup>();
             group.interactable = false;
             group.blocksRaycasts = false;
+            RectTransform cardRect = card.GetComponent<RectTransform>();
+            cardRect.anchorMin = new Vector2(0.5f, 0.0f);
+            cardRect.anchorMax = new Vector2(0.5f, 0.0f);
+            cardRect.pivot = new Vector2(0.5f, 0.0f);
+            cardRect.anchoredPosition = new Vector2(0.0f, 24.0f);
             TextMeshProUGUI description = card.GetComponentInChildren<TextMeshProUGUI>();
             description.name = "Description";
             description.fontSize = 20.0f;
@@ -281,7 +341,10 @@ namespace ViitorCloud.KmaxPresentation.Editor {
             so.FindProperty("subtitleText").objectReferenceValue = subtitle;
             so.FindProperty("descriptionText").objectReferenceValue = description;
             so.FindProperty("panelGroup").objectReferenceValue = group;
-            so.FindProperty("neighbourX").floatValue = 1.1f;
+            Material shadowMat = AssetDatabase.LoadAssetAtPath<Material>("Assets/Games/kmax-presentation/Environment/Materials/M_Showroom_FloorShadow.mat");
+            if (shadowMat != null) {
+                so.FindProperty("floorShadowMaterial").objectReferenceValue = shadowMat;
+            }
             card.GetComponent<VerticalLayoutGroup>().spacing = 4.0f;
             so.ApplyModifiedPropertiesWithoutUndo();
 
@@ -426,88 +489,98 @@ namespace ViitorCloud.KmaxPresentation.Editor {
         }
 
         /// <summary>
-        /// The Virtual Showroom Space environment (owner supplied): flowing pattern wall, curved walls, roof dome and a glossy marble floor disc,
-        /// as plain unlit-to-lit URP meshes behind the stage. The mote particles of the rig stay on and draw in front of it.
+        /// The Virtual Showroom Space environment from the owner's download: circular drapery curtain wall, ceiling softbox,
+        /// and a dark glossy reflective stage floor disc, perfectly enclosing the stage.
         /// </summary>
         private static void BuildBackdrop() {
-            string[] normals = new string[] { "Base_Normal", "Platform_Normal", "Roof_Normal", "Wall1_Normal", "Wall2_Normal", "Concrete_Normal" };
-            for (int i = 0; i < normals.Length; i++) {
-                SetNormalMap(EnvRoot + "Textures/" + normals[i] + ".png");
-            }
-            Texture2D baseDiffuse = AssetDatabase.LoadAssetAtPath<Texture2D>(EnvRoot + "Textures/Base_Diffuse.png");
-            Texture2D baseNormal = AssetDatabase.LoadAssetAtPath<Texture2D>(EnvRoot + "Textures/Base_Normal.png");
-            Texture2D roofDiffuse = AssetDatabase.LoadAssetAtPath<Texture2D>(EnvRoot + "Textures/Roof_Diffuse.png");
-            Texture2D roofNormal = AssetDatabase.LoadAssetAtPath<Texture2D>(EnvRoot + "Textures/Roof_Normal.png");
-            Texture2D wall1Normal = AssetDatabase.LoadAssetAtPath<Texture2D>(EnvRoot + "Textures/Wall1_Normal.png");
-            Texture2D wall2Normal = AssetDatabase.LoadAssetAtPath<Texture2D>(EnvRoot + "Textures/Wall2_Normal.png");
+            string normalPath = EnvRoot + "Textures/Showroom_Curtain_Normal.png";
+            SetNormalMap(normalPath);
 
-            Texture2D platformDiffuse = AssetDatabase.LoadAssetAtPath<Texture2D>(EnvRoot + "Textures/Platform_Diffuse.png");
-            Texture2D platformNormal = AssetDatabase.LoadAssetAtPath<Texture2D>(EnvRoot + "Textures/Platform_Normal.png");
-            Texture2D palmLeaf = AssetDatabase.LoadAssetAtPath<Texture2D>(EnvRoot + "Textures/Palm_Leaf.png");
+            Texture2D floorTex = AssetDatabase.LoadAssetAtPath<Texture2D>(EnvRoot + "Textures/Showroom_Floor_Circle.png");
+            Texture2D curtainNormal = AssetDatabase.LoadAssetAtPath<Texture2D>(normalPath);
 
-            // Part materials. The meshes carry no material of their own (the export had none), so they are matched by part name.
-            Material floor = EnvMaterial("Showroom_Floor", null, null, new Color(0.035f, 0.04f, 0.055f, 1.0f), 0.88f, 1.0f);
-            Material roof = EnvMaterial("Showroom_Roof", roofDiffuse, roofNormal, new Color(0.62f, 0.6f, 0.62f, 1.0f), 0.3f, 1.0f);
-            Material golden = EnvMaterial("Showroom_GoldenWall", null, wall1Normal, new Color(0.78f, 0.58f, 0.2f, 1.0f), 0.25f, 0.5f);
-            Material fins = EnvMaterial("Showroom_FinWall", null, wall2Normal, new Color(0.72f, 0.76f, 0.82f, 1.0f), 0.45f, 0.5f);
-            Material platform = EnvMaterial("Showroom_Platform", platformDiffuse, platformNormal, new Color(0.9f, 1.0f, 1.0f, 1.0f), 0.8f, 0.6f);
-            Material pot = EnvMaterial("Showroom_Pot", null, null, new Color(0.62f, 0.08f, 0.08f, 1.0f), 0.55f, 1.0f);
-            Material palm = EnvMaterial("Showroom_Palm", palmLeaf, null, Color.white, 0.2f, 1.0f);
-            palm.SetFloat("_AlphaClip", 1.0f);
-            palm.SetFloat("_Cutoff", 0.5f);
-            palm.EnableKeyword("_ALPHATEST_ON");
-            palm.renderQueue = 2450;
-            EditorUtility.SetDirty(palm);
+            // Floor: sleek glossy showroom disc with high smoothness for reflections
+            Material floor = EnvMaterial("M_Showroom_Floor", floorTex, null, new Color(0.20f, 0.24f, 0.32f, 1.0f), 0.85f, 1.0f);
+            floor.SetTextureScale("_BaseMap", new Vector2(1.0f, 1.0f));
+            floor.SetFloat("_Metallic", 0.30f);
 
-            GameObject asset = AssetDatabase.LoadAssetAtPath<GameObject>(EnvRoot + "Showroom_Arranged.fbx");
+            // Curtain wall: pleated fabric drape tinted in the theme slate #252A36
+            Color wallTint = new Color(0.28f, 0.32f, 0.40f, 1.0f);
+            Material wall = EnvMaterial("M_Showroom_CurtainWall", null, curtainNormal, wallTint, 0.40f, 1.0f);
+            wall.SetTextureScale("_BumpMap", new Vector2(1.0f, 1.0f));
+            wall.SetFloat("_BumpScale", 1.5f);
+            wall.SetFloat("_Cull", (float)UnityEngine.Rendering.CullMode.Back);
+
+            // Ceiling softbox panel
+            Material ceiling = EnvMaterial("M_Showroom_Ceiling", null, null, new Color(0.95f, 0.95f, 0.98f, 1.0f), 0.30f, 1.0f);
+            ceiling.SetColor("_EmissionColor", new Color(0.95f, 0.95f, 0.98f, 1.0f));
+            ceiling.EnableKeyword("_EMISSION");
+            ceiling.SetFloat("_Cull", (float)UnityEngine.Rendering.CullMode.Back);
+
+            // Side frame accents
+            Material sideFrame = EnvMaterial("M_Showroom_SideFrame", null, null, new Color(0.12f, 0.12f, 0.15f, 1.0f), 0.50f, 1.0f);
+            sideFrame.SetFloat("_Cull", (float)UnityEngine.Rendering.CullMode.Back);
+
+            Texture2D signLogo = AssetDatabase.LoadAssetAtPath<Texture2D>(EnvRoot + "Textures/Lamborghini_Logo.png");
+            Material signMat = EnvMaterial("M_Showroom_Signboard", signLogo, null, Color.white, 0.40f, 1.0f);
+            signMat.SetFloat("_Cull", (float)UnityEngine.Rendering.CullMode.Back);
+
+            GameObject asset = AssetDatabase.LoadAssetAtPath<GameObject>(EnvRoot + "Showroom_Environment.fbx");
             if (asset == null) {
-                Debug.LogError("[Presentation] Showroom_Arranged.fbx missing; the arranged environment is skipped.");
+                Debug.LogError("[Presentation] Showroom_Environment.fbx missing; showroom environment skipped.");
                 return;
             }
 
-            // The FBX was arranged in Blender from the owner's Sketchfab showroom: ring of golden wall + fin wall closing it, roof dome with skylight,
-            // glossy floor with its top at 1.64 m, notched and round teal platforms, pot and palm. Its floor level maps to the stage floor.
-            GameObject rootGo = (GameObject)Object.Instantiate(asset);
+            GameObject rootGo = (GameObject)UnityEngine.Object.Instantiate(asset);
             rootGo.name = "Environment";
-            rootGo.transform.localScale = Vector3.one * EnvScale;
-            rootGo.transform.position = new Vector3(0.0f, EnvFloorY - EnvModelFloorHeight * EnvScale, 0.0f);
-            rootGo.transform.rotation = Quaternion.Euler(0.0f, EnvYaw, 0.0f);
+            rootGo.transform.position = new Vector3(0.0f, EnvFloorY, 0.0f);
+            rootGo.transform.rotation = Quaternion.identity;
+            rootGo.transform.localScale = new Vector3(EnvScale, EnvScaleY, EnvScale);
 
             Renderer[] renderers = rootGo.GetComponentsInChildren<Renderer>(true);
             for (int i = 0; i < renderers.Length; i++) {
                 string partName = renderers[i].gameObject.name;
                 Material material = null;
-                if (partName.StartsWith("Floor")) {
+                if (partName.Contains("Floor")) {
                     material = floor;
-                } else if (partName.StartsWith("GoldenWall")) {
-                    material = golden;
-                } else if (partName.StartsWith("FinWall")) {
-                    material = fins;
-                } else if (partName.StartsWith("Roof")) {
-                    material = roof;
-                } else if (partName.StartsWith("Platform")) {
-                    material = platform;
-                } else if (partName.StartsWith("Pot")) {
-                    material = pot;
-                } else if (partName.StartsWith("Palm")) {
-                    material = palm;
+                } else if (partName.Contains("CurtainWall")) {
+                    material = wall;
+                } else if (partName.Contains("Ceiling")) {
+                    material = ceiling;
+                } else if (partName.Contains("model_0")) {
+                    material = signMat;
                 } else {
-                    Debug.LogWarning("[Presentation] Environment part '" + partName + "' has no material rule.");
-                    continue;
+                    material = sideFrame;
                 }
                 renderers[i].sharedMaterial = material;
                 renderers[i].shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-                renderers[i].receiveShadows = false;
+                renderers[i].receiveShadows = partName.Contains("Floor");
             }
+
+            // Realtime reflection probe for showroom floor reflections
+            GameObject probeGo = GameObject.Find("ShowroomReflectionProbe");
+            if (probeGo == null) {
+                probeGo = new GameObject("ShowroomReflectionProbe");
+            }
+            probeGo.transform.position = new Vector3(0.0f, -0.40f, 0.0f);
+            ReflectionProbe probe = probeGo.GetComponent<ReflectionProbe>();
+            if (probe == null) {
+                probe = probeGo.AddComponent<ReflectionProbe>();
+            }
+            probe.mode = UnityEngine.Rendering.ReflectionProbeMode.Realtime;
+            probe.refreshMode = UnityEngine.Rendering.ReflectionProbeRefreshMode.EveryFrame;
+            probe.timeSlicingMode = UnityEngine.Rendering.ReflectionProbeTimeSlicingMode.AllFacesAtOnce;
+            probe.boxProjection = true;
+            probe.size = new Vector3(4.5f, 2.5f, 4.5f);
+            probe.center = new Vector3(0.0f, 0.20f, 0.0f);
+            probe.intensity = 1.25f;
+            probe.resolution = 256;
+            probe.RenderProbe();
         }
 
-        private const float EnvYaw = 180.0f;
-        private const float EnvModelFloorHeight = 1.64f;
-        private const float EnvScale = 0.5f;
-        private const float EnvFloorRadius = 4.8f;
-        private const float EnvRoomRadius = 24.0f;
         private const float EnvFloorY = -0.7f;
-        private const float EnvFlowScale = 0.46f;
+        private const float EnvScale = 0.25f;
+        private const float EnvScaleY = 0.60f;
 
         /// <summary>
         /// The owner's Backdrop quad (position (0, -1.3, 9), scale (9, 5, 1)) with the perspective-grid wallpaper recoloured to the Design.md backdrop

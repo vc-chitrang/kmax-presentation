@@ -1,8 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using DG.Tweening;
+using KmaxXR;
 using TMPro;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace ViitorCloud.KmaxPresentation {
     public enum PresentationShow {
@@ -18,6 +23,8 @@ namespace ViitorCloud.KmaxPresentation {
         public string title;
         public string subtitle;
         public string description;
+        [Tooltip("One short line shown under the title. Empty: the full description is shown.")]
+        public string shortDescription;
         public string group;
         public GameObject prefab;
         public PresentationShow show;
@@ -29,6 +36,14 @@ namespace ViitorCloud.KmaxPresentation {
         public float swayDegrees = 32.0f;
         public bool pulse;
         public string anatomyTopic;
+
+        [Header("Placement tuning (live in Play, keep with Save tuning)")]
+        [Tooltip("World-space shift from ModelPlacement, in metres.")]
+        public Vector3 positionOffset = Vector3.zero;
+        [Tooltip("Multiplies the automatic screen fit. 1 = fit as computed.")]
+        [Range(0.1f, 3.0f)] public float scaleMultiplier = 1.0f;
+        [Tooltip("Free screen space kept above and below the model, as a fraction of the screen height. 0 = use the director default.")]
+        [Range(0.0f, 0.45f)] public float topBottomPadding = 0.20f;
     }
 
     /// <summary>
@@ -38,9 +53,15 @@ namespace ViitorCloud.KmaxPresentation {
     /// No input of any kind is read.
     /// </summary>
     public class PresentationDirector : MonoBehaviour {
-        private const float MoveSeconds = 1.4f;
+        private const float PopInSeconds = 0.24f;
+        private const float PopOutSeconds = 0.24f;
+        private const float PanelDelaySeconds = 0.1f;
+        private const float PanelFadeSeconds = 0.24f;
         private const float ShowSeconds = 8.0f;
-        private const int LoadRadius = 2;
+        private const int LoadRadius = 1;
+        private const float ShadowPadding = 1.30f;
+        private const float ShadowMaxAlpha = 0.65f;
+        private MaterialPropertyBlock shadowBlock;
         private const float AircraftConceptSeconds = 2.7f;
 
         [SerializeField] private List<PresentationItem> items = new List<PresentationItem>();
@@ -49,9 +70,39 @@ namespace ViitorCloud.KmaxPresentation {
         [SerializeField] private TMP_Text subtitleText;
         [SerializeField] private TMP_Text descriptionText;
         [SerializeField] private CanvasGroup panelGroup;
-        [SerializeField] private float neighbourX = 1.1f;
+        [SerializeField] private Material floorShadowMaterial;
+        [Tooltip("Dark contact quad under each model. Off: the models float on the backdrop with only their own soft shadows.")]
+        [SerializeField] private bool showFloorShadow = false;
         [SerializeField] private float explodeSpread = 0.28f;
         [SerializeField] private float maxFootprint = 1.35f;
+        [SerializeField] private Transform modelPlacement;
+        [Tooltip("Fit and place every model in the display's own comfort volume (rig at the models, glass through them). Off: models keep the fit by screen size at the Carousel, as in the older scenes.")]
+        [SerializeField] private bool stereoFit = false;
+        [Tooltip("Where the model's centre sits on the view axis, in metres at view scale 1 (multiplied by the rig's view scale). 0 = on the glass, so half of it comes out of the screen; positive = deeper, negative = further out.")]
+        [SerializeField] private float stageCentre = 0.0f;
+        [SerializeField] private Camera fitCamera;
+        [SerializeField] private Transform shadowFloor;
+        [SerializeField] [Range(0.5f, 1.0f)] private float fitHeightFraction = 0.60f;
+        [SerializeField] [Range(0.3f, 1.0f)] private float fitWidthFraction = 0.85f;
+        [SerializeField] private bool autoAdvance = true;
+        [SerializeField] private bool debugBrowse = true;
+
+        public bool AutoAdvance {
+            get {
+                return autoAdvance;
+            }
+            set {
+                autoAdvance = value;
+            }
+        }
+
+        private Transform floorShadowTransform;
+        private MeshRenderer floorShadowRenderer;
+        private Light keyLight;
+        private Light fillLight;
+        private Light rimLight;
+        private Light stageLight;
+        private ReflectionProbe showroomProbe;
 
         private sealed class Slot {
             public int queueIndex;
@@ -64,12 +115,18 @@ namespace ViitorCloud.KmaxPresentation {
             public float explodeGrow = 1.0f;
             public float spinAngle;
             public Vector3 baseScale;
+            public Vector2 footprint;
             public Component engine;
             public FieldInfo engineRpm;
             public Component aircraft;
             public MethodInfo aircraftShow;
             public int aircraftConceptCount;
             public int aircraftConcept = -1;
+            public Sequence pop;
+            public bool popStarted;
+            public Vector3 fittedOffset;
+            public float fittedScale;
+            public float fittedPadding;
         }
 
         private sealed class ExplodePart {
@@ -80,13 +137,27 @@ namespace ViitorCloud.KmaxPresentation {
 
         private readonly List<int> queue = new List<int>();
         private readonly Dictionary<int, Slot> slots = new Dictionary<int, Slot>();
-        private float carouselPosition;
         private int currentIndex;
-        private int fromIndex;
-        private float moveTimer = MoveSeconds;
+        private int browseIndex;
+        private const float SceneShadowMargin = 1.5f;
+        // The display's comfort volume, from the Kmax SDK (StereoCamera.DefaultDistance and the 0.37 / 0.80 of XRRig.DrawFrustum),
+        // all multiplied by the rig's view scale: 0.13 m of pop-out in front of the glass and 0.30 m of depth behind it at scale 1.
+        private const float ComfortNearFromCamera = 0.37f;
+        private const float ComfortFarFromCamera = 0.80f;
+        private const float ComfortMargin = 0.015f;
+        private const float BobMetres = 0.0025f;
+        private const float BobRadiansPerSecond = 0.45f;
+        private const float WindowFill = 0.90f;
+        private UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset shadowAsset;
+        private float originalShadowDistance;
+        private bool shadowDistanceChanged;
+        private PresentationDebugBrowser debugBrowser;
+        private Tween browseTween;
+        private bool firstBrowseRefitDone;
+        private Transform stereoRig;
         private float itemTimer;
-        private bool textSwapped = true;
         private Transform inactiveParent;
+        private Sequence panelSequence;
 
         private void Start() {
             if (items.Count == 0) {
@@ -95,53 +166,164 @@ namespace ViitorCloud.KmaxPresentation {
                 return;
             }
 
+            ResolvePlacement();
+
+            if (carouselRoot != null) {
+                for (int i = carouselRoot.childCount - 1; i >= 0; i--) {
+                    Transform staleChild = carouselRoot.GetChild(i);
+                    staleChild.gameObject.SetActive(false);
+                    Destroy(staleChild.gameObject);
+                }
+            }
+
             GameObject parkGo = new GameObject("InactiveParking");
             parkGo.transform.SetParent(transform, false);
             parkGo.SetActive(false);
             inactiveParent = parkGo.transform;
 
+            if (floorShadowMaterial == null) {
+#if UNITY_EDITOR
+                floorShadowMaterial = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>("Assets/Games/kmax-presentation/Environment/Materials/M_Showroom_FloorShadow.mat");
+#endif
+            }
+
+            if (showFloorShadow && floorShadowMaterial != null) {
+                GameObject shadowQuad = GameObject.CreatePrimitive(PrimitiveType.Quad);
+                shadowQuad.name = "FloorContactShadow";
+                shadowQuad.transform.SetParent(transform, false);
+                shadowQuad.transform.position = new Vector3(0.0f, -0.695f, 0.0f);
+                shadowQuad.transform.rotation = Quaternion.Euler(90.0f, 0.0f, 0.0f);
+                Collider shadowCol = shadowQuad.GetComponent<Collider>();
+                if (shadowCol != null) {
+                    Destroy(shadowCol);
+                }
+                floorShadowRenderer = shadowQuad.GetComponent<MeshRenderer>();
+                floorShadowRenderer.sharedMaterial = floorShadowMaterial;
+                floorShadowRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                floorShadowRenderer.receiveShadows = false;
+                floorShadowTransform = shadowQuad.transform;
+            }
+
+            ApplySceneShadowDistance();
+
+            GameObject keyGo = GameObject.Find("Key Light");
+            if (keyGo != null) {
+                keyLight = keyGo.GetComponent<Light>();
+            }
+            GameObject fillGo = GameObject.Find("Fill Light");
+            if (fillGo != null) {
+                fillLight = fillGo.GetComponent<Light>();
+            }
+            GameObject rimGo = GameObject.Find("Rim Light");
+            if (rimGo != null) {
+                rimLight = rimGo.GetComponent<Light>();
+            }
+            GameObject stageGo = GameObject.Find("StageLight");
+            if (stageGo != null) {
+                stageLight = stageGo.GetComponent<Light>();
+            }
+            GameObject probeGo = GameObject.Find("ShowroomReflectionProbe");
+            if (probeGo != null) {
+                showroomProbe = probeGo.GetComponent<ReflectionProbe>();
+            }
+
+            ConfigurePostProcessing();
+
             EnsureQueue(LoadRadius + 12);
             currentIndex = 0;
-            fromIndex = 0;
-            carouselPosition = 0.0f;
-            moveTimer = MoveSeconds;
             itemTimer = 0.0f;
             ApplyText(items[queue[0]]);
-            SetPanelAlpha(1.0f);
+            PlayPanelSequence();
             EnsureWindow(true);
             LayoutSlots();
+
+            Canvas uiCanvas = panelGroup != null ? panelGroup.GetComponentInParent<Canvas>() : null;
+            if (uiCanvas != null) {
+                PresentationVersionLabel.Create(uiCanvas.rootCanvas, titleText);
+            } else {
+                Debug.LogError("[Presentation] No UI canvas above the info panel; the version label is not shown.");
+            }
+
+            if (debugBrowse) {
+                StartDebugBrowse();
+            }
         }
 
         private void Update() {
             float dt = Time.deltaTime;
             itemTimer += dt;
 
-            if (moveTimer < MoveSeconds) {
-                moveTimer += dt;
-                float k = Mathf.SmoothStep(0.0f, 1.0f, Mathf.Clamp01(moveTimer / MoveSeconds));
-                carouselPosition = Mathf.Lerp(fromIndex, currentIndex, k);
-                UpdatePanelFade();
-            } else {
-                carouselPosition = currentIndex;
-                SetPanelAlpha(1.0f);
-            }
-
-            if (itemTimer >= ShowSeconds) {
+            if (debugBrowse) {
+                // Browse mode: the model stays until the next or previous button is used; its show keeps looping.
+                if (itemTimer >= ShowSeconds) {
+                    itemTimer = 0.0f;
+                }
+                RefitIfTuningChanged();
+            } else if (autoAdvance && itemTimer >= ShowSeconds) {
                 Advance();
             }
 
             EnsureWindow(false);
             LayoutSlots();
             AnimateSlots(dt);
+
+            // Outside pop windows: active holders with scale > 0.01f must be exactly 1
+            if (!debugBrowse && itemTimer > (PopInSeconds + 0.15f) && itemTimer < (ShowSeconds - PopOutSeconds - 0.15f)) {
+                int activeHolderCount = 0;
+                foreach (KeyValuePair<int, Slot> pair in slots) {
+                    if (pair.Value.holder != null && pair.Value.holder.gameObject.activeInHierarchy && pair.Value.holder.localScale.x > 0.01f) {
+                        activeHolderCount++;
+                    }
+                }
+                if (activeHolderCount != 1) {
+                    Debug.LogError("[Presentation Guard] Assertion failed: active holders with scale > 0.01 is " + activeHolderCount + " (expected exactly 1 outside pop window) at t=" + itemTimer.ToString("F2") + "s.");
+                }
+            }
         }
 
+        /// <summary>One model at a time: the next one pops in the moment the last has popped out.</summary>
         private void Advance() {
-            fromIndex = currentIndex;
             currentIndex = currentIndex + 1;
             EnsureQueue(currentIndex + LoadRadius + 12);
-            moveTimer = 0.0f;
             itemTimer = 0.0f;
-            textSwapped = false;
+            ApplyText(items[queue[currentIndex]]);
+            PlayPanelSequence();
+        }
+
+        /// <summary>The info panel fades in a moment after the model pops in and out as it pops out (DOTween, linear).</summary>
+        private void PlayPanelSequence() {
+            if (panelGroup == null) {
+                return;
+            }
+            if (panelSequence != null) {
+                panelSequence.Kill(false);
+            }
+            DOTween.Kill(panelGroup, false);
+            panelGroup.alpha = 0.0f;
+            float hold = ShowSeconds - PopOutSeconds - PanelDelaySeconds - PanelFadeSeconds;
+            panelSequence = DOTween.Sequence();
+            panelSequence.SetLink(panelGroup.gameObject, LinkBehaviour.KillOnDestroy);
+            panelSequence.AppendInterval(PanelDelaySeconds);
+            panelSequence.Append(panelGroup.DOFade(1.0f, PanelFadeSeconds).SetEase(Ease.Linear));
+            panelSequence.AppendInterval(Mathf.Max(0.0f, hold));
+            panelSequence.Append(panelGroup.DOFade(0.0f, PopOutSeconds).SetEase(Ease.Linear));
+        }
+
+        /// <summary>Linear pop-in (0 to 1), hold, linear pop-out (1 to 0) of the model on the stage (DOTween, owner order).</summary>
+        private void PlayPopSequence(Slot slot) {
+            if (slot.pop != null) {
+                slot.pop.Kill(false);
+            }
+            if (slot.holder != null) {
+                DOTween.Kill(slot.holder, false);
+                slot.holder.localScale = Vector3.zero;
+                slot.pop = DOTween.Sequence();
+                slot.pop.SetLink(slot.holder.gameObject, LinkBehaviour.KillOnDestroy);
+                slot.pop.Append(slot.holder.DOScale(Vector3.one, PopInSeconds).SetEase(Ease.Linear));
+                slot.pop.AppendInterval(Mathf.Max(0.0f, ShowSeconds - PopInSeconds - PopOutSeconds));
+                slot.pop.Append(slot.holder.DOScale(Vector3.zero, PopOutSeconds).SetEase(Ease.Linear));
+                slot.popStarted = true;
+            }
         }
 
         /// <summary>Appends shuffled batches until the queue is long enough; see <see cref="AppendBatch"/>.</summary>
@@ -205,18 +387,229 @@ namespace ViitorCloud.KmaxPresentation {
             return false;
         }
 
-        private void UpdatePanelFade() {
-            float t = moveTimer;
-            float half = MoveSeconds * 0.5f;
-            if (t < half) {
-                SetPanelAlpha(1.0f - Mathf.Clamp01(t / half));
+        private void OnDestroy() {
+            if (panelSequence != null) {
+                panelSequence.Kill();
+            }
+            RestoreSceneShadowDistance();
+        }
+
+        // The URP asset is shared with the other launcher scenes, so the shadow reach this scene needs is set while it runs and
+        // the asset's own value is put back when it ends.
+        private void ApplySceneShadowDistance() {
+            shadowAsset = UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline as UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset;
+            if (shadowAsset == null) {
                 return;
             }
-            if (!textSwapped) {
-                ApplyText(items[queue[currentIndex]]);
-                textSwapped = true;
+            Camera viewCamera = ResolveFitCamera();
+            Vector3 target = modelPlacement != null ? modelPlacement.position : (carouselRoot != null ? carouselRoot.position : transform.position);
+            float scale = StereoRigPresent() ? XRRig.ViewScale : 1.0f;
+            float needed = viewCamera != null ? Vector3.Distance(viewCamera.transform.position, target) + SceneShadowMargin * scale : SceneShadowMargin * 4.0f * scale;
+            originalShadowDistance = shadowAsset.shadowDistance;
+            // The shadow map should cover the stage and nothing more: models are a few tens of centimetres in the display's own space.
+            if (!Mathf.Approximately(needed, originalShadowDistance)) {
+                shadowAsset.shadowDistance = needed;
+                shadowDistanceChanged = true;
             }
-            SetPanelAlpha(Mathf.Clamp01((t - half) / half));
+        }
+
+        private void RestoreSceneShadowDistance() {
+            if (shadowDistanceChanged && shadowAsset != null) {
+                shadowAsset.shadowDistance = originalShadowDistance;
+                shadowDistanceChanged = false;
+            }
+        }
+
+        /// <summary>Applies inspector edits of the shown model's offset, scale and padding at once, without reloading it.</summary>
+        private void RefitIfTuningChanged() {
+            if (!slots.ContainsKey(currentIndex)) {
+                return;
+            }
+            Slot slot = slots[currentIndex];
+            PresentationItem item = slot.item;
+            if (slot.fittedOffset == item.positionOffset && Mathf.Approximately(slot.fittedScale, item.scaleMultiplier) && Mathf.Approximately(slot.fittedPadding, item.topBottomPadding)) {
+                return;
+            }
+            if (slot.parts.Count > 0) {
+                ApplyExplode(slot, 0.0f);
+            }
+            Quaternion spin = slot.spinner.localRotation;
+            slot.spinner.localRotation = Quaternion.identity;
+            slot.model.localScale = Vector3.one;
+            slot.model.localPosition = Vector3.zero;
+            slot.model.localRotation = Quaternion.Euler(item.baseEuler);
+            FitModel(slot, item);
+            slot.baseScale = slot.model.localScale;
+            slot.holder.localRotation = Quaternion.Euler(item.tiltDegrees, 0.0f, 0.0f);
+            slot.spinner.localRotation = spin;
+            LogBrowse();
+        }
+
+        /// <summary>Index in the item list of the model shown in browse mode (0 to ItemCount - 1, the same order as the Items list).</summary>
+        public int BrowseIndex {
+            get {
+                return browseIndex;
+            }
+        }
+
+        private void StartDebugBrowse() {
+            if (panelGroup == null) {
+                Debug.LogError("[Presentation] Browse buttons need the info panel canvas; none is assigned.");
+                debugBrowse = false;
+                return;
+            }
+            Canvas canvas = panelGroup.GetComponentInParent<Canvas>();
+            if (canvas == null) {
+                Debug.LogError("[Presentation] Browse buttons need a canvas above the info panel; none found.");
+                debugBrowse = false;
+                return;
+            }
+            PresentationDebugBrowser browser = gameObject.AddComponent<PresentationDebugBrowser>();
+            browser.Build(this, canvas.rootCanvas, titleText, ResolveFitCamera());
+            debugBrowser = browser;
+            BrowseTo(0);
+        }
+
+        /// <summary>Shows the model at the given item index, wrapping at both ends (last then first, first then last).</summary>
+        public void BrowseOffset(int delta) {
+            int count = items.Count;
+            BrowseTo(((browseIndex + delta) % count + count) % count);
+        }
+
+        public void BrowseTo(int index) {
+            browseIndex = index;
+            if (debugBrowser != null) {
+                debugBrowser.Refresh();
+            }
+            if (browseTween != null) {
+                browseTween.Kill(false);
+                browseTween = null;
+            }
+
+            // The model on stage pops out (linear, DOTween), then the new one is built and pops in, the same as the automatic show.
+            Transform leaving = GetCentreHolder();
+            if (leaving != null && leaving.gameObject.activeInHierarchy && leaving.localScale.x > 0.01f) {
+                DOTween.Kill(leaving, false);
+                browseTween = leaving.DOScale(Vector3.zero, PopOutSeconds).SetEase(Ease.Linear).SetLink(leaving.gameObject, LinkBehaviour.KillOnDestroy);
+                browseTween.OnComplete(delegate {
+                    browseTween = null;
+                    ShowBrowseModel(index);
+                });
+            } else {
+                ShowBrowseModel(index);
+            }
+        }
+
+        private void ShowBrowseModel(int index) {
+            JumpToItem(index);
+            itemTimer = 0.0f;
+            Transform entering = GetCentreHolder();
+            if (entering != null) {
+                entering.localScale = Vector3.zero;
+                browseTween = entering.DOScale(Vector3.one, PopInSeconds).SetEase(Ease.Linear).SetLink(entering.gameObject, LinkBehaviour.KillOnDestroy);
+                browseTween.OnComplete(delegate {
+                    browseTween = null;
+                    // The very first model is fitted while the stereo rig is still settling in the player; fit it once more when it has
+                    // popped in, so it can never stay at a size measured before the rig was ready.
+                    if (!firstBrowseRefitDone && slots.ContainsKey(currentIndex)) {
+                        firstBrowseRefitDone = true;
+                        slots[currentIndex].fittedScale = -1.0f;
+                    }
+                });
+            }
+            LogBrowse();
+        }
+
+        private void LogBrowse() {
+            Transform model = GetCentreModel();
+            Transform holder = GetCentreHolder();
+            if (model == null || holder == null) {
+                return;
+            }
+            bool found;
+            Bounds bounds = MeshBounds(model, out found);
+            Debug.Log("[Presentation Browse] " + browseIndex + " / " + items.Count + "  " + items[browseIndex].title
+                + "  modelLocalScale=" + model.localScale.x.ToString("F4")
+                + "  worldSize=" + (found ? bounds.size.ToString("F2") : "none")
+                + "  offset=" + items[browseIndex].positionOffset.ToString("F2")
+                + "  scaleMultiplier=" + items[browseIndex].scaleMultiplier.ToString("F2")
+                + "  topBottomPadding=" + items[browseIndex].topBottomPadding.ToString("F2"));
+        }
+
+        public int ItemCount {
+            get {
+                return items.Count;
+            }
+        }
+
+        public PresentationItem GetItem(int index) {
+            if (index < 0 || index >= items.Count) {
+                return null;
+            }
+            return items[index];
+        }
+
+        public void JumpToItem(int itemIndex) {
+            if (itemIndex < 0 || itemIndex >= items.Count) {
+                return;
+            }
+            if (panelSequence != null) {
+                panelSequence.Kill();
+            }
+            foreach (KeyValuePair<int, Slot> pair in slots) {
+                if (pair.Value.pop != null) {
+                    pair.Value.pop.Kill();
+                }
+            }
+            slots.Clear();
+            if (carouselRoot != null) {
+                for (int i = carouselRoot.childCount - 1; i >= 0; i--) {
+                    GameObject childGo = carouselRoot.GetChild(i).gameObject;
+                    childGo.SetActive(false);
+                    Destroy(childGo);
+                }
+            }
+            queue.Clear();
+            queue.Add(itemIndex);
+            EnsureQueue(LoadRadius + 12);
+            currentIndex = 0;
+            itemTimer = 0.0f;
+            ApplyText(items[itemIndex]);
+            SetPanelAlpha(1.0f);
+            EnsureWindow(true);
+            LayoutSlots();
+            if (slots.ContainsKey(0)) {
+                Slot slot = slots[0];
+                slot.holder.localScale = Vector3.one;
+                if (slot.pop != null) {
+                    slot.pop.Kill();
+                }
+            }
+        }
+
+        public Transform GetCentreHolder() {
+            if (slots.ContainsKey(currentIndex)) {
+                return slots[currentIndex].holder;
+            }
+            return null;
+        }
+
+        public Transform GetCentreModel() {
+            if (slots.ContainsKey(currentIndex)) {
+                return slots[currentIndex].model;
+            }
+            return null;
+        }
+
+        public Transform GetCentreSpinner() {
+            if (slots.ContainsKey(currentIndex)) {
+                return slots[currentIndex].spinner;
+            }
+            return null;
+        }
+
+        public Transform GetFloorShadow() {
+            return floorShadowTransform;
         }
 
         private void SetPanelAlpha(float alpha) {
@@ -233,7 +626,48 @@ namespace ViitorCloud.KmaxPresentation {
                 subtitleText.text = item.subtitle;
             }
             if (descriptionText != null) {
-                descriptionText.text = item.description;
+                descriptionText.text = string.IsNullOrEmpty(item.shortDescription) ? item.description : item.shortDescription;
+            }
+            ApplyPerItemLighting(item);
+        }
+
+        private void ApplyPerItemLighting(PresentationItem item) {
+            if (item == null) {
+                return;
+            }
+            if (item.title == "Volvo S90" || item.show == PresentationShow.EngineRun) {
+                if (fillLight != null) {
+                    fillLight.intensity = 0.98f;
+                }
+                if (rimLight != null) {
+                    rimLight.intensity = 1.88f;
+                }
+                if (keyLight != null) {
+                    keyLight.intensity = 1.88f;
+                }
+            } else if (item.title.Contains("Coffee Table") || item.title.Contains("Dining Table") || item.title.Contains("Armchair")) {
+                if (fillLight != null) {
+                    fillLight.intensity = 0.68f;
+                }
+                if (keyLight != null) {
+                    keyLight.intensity = 1.58f;
+                }
+                if (rimLight != null) {
+                    rimLight.intensity = 1.50f;
+                }
+            } else {
+                if (fillLight != null) {
+                    fillLight.intensity = 0.75f;
+                }
+                if (keyLight != null) {
+                    keyLight.intensity = 1.80f;
+                }
+                if (rimLight != null) {
+                    rimLight.intensity = 1.65f;
+                }
+            }
+            if (showroomProbe != null) {
+                showroomProbe.RenderProbe();
             }
         }
 
@@ -260,13 +694,25 @@ namespace ViitorCloud.KmaxPresentation {
 
             List<int> remove = new List<int>();
             foreach (KeyValuePair<int, Slot> pair in slots) {
-                if (Mathf.Abs(pair.Key - carouselPosition) > LoadRadius + 1.5f) {
+                if (pair.Key < currentIndex || pair.Key > currentIndex + LoadRadius + 1) {
                     remove.Add(pair.Key);
                 }
             }
             for (int i = 0; i < remove.Count; i++) {
-                Destroy(slots[remove[i]].holder.gameObject);
-                slots.Remove(remove[i]);
+                int removeKey = remove[i];
+                if (slots.ContainsKey(removeKey)) {
+                    Slot oldSlot = slots[removeKey];
+                    if (oldSlot.pop != null) {
+                        oldSlot.pop.Kill(false);
+                        oldSlot.pop = null;
+                    }
+                    if (oldSlot.holder != null) {
+                        DOTween.Kill(oldSlot.holder, false);
+                        oldSlot.holder.gameObject.SetActive(false);
+                        Destroy(oldSlot.holder.gameObject);
+                    }
+                    slots.Remove(removeKey);
+                }
             }
         }
 
@@ -299,7 +745,7 @@ namespace ViitorCloud.KmaxPresentation {
             slot.spinner = spinnerGo.transform;
             slot.model = model.transform;
 
-            FitModel(slot, item.fitSize);
+            FitModel(slot, item);
             slot.baseScale = slot.model.localScale;
 
             if (item.show == PresentationShow.Explode) {
@@ -315,6 +761,7 @@ namespace ViitorCloud.KmaxPresentation {
                 BindPcbExhibit(slot);
             }
             MakeDoubleSided(model);
+            CalibrateMaterials(model);
             if (anatomy) {
                 AttachAnatomyBehaviour(model, item.anatomyTopic);
             }
@@ -323,14 +770,40 @@ namespace ViitorCloud.KmaxPresentation {
             return slot;
         }
 
-        private static void BindPcbExhibit(Slot slot) {
-            Component exhibit = slot.model.GetComponent("PcbWorkingExhibit");
-            if (exhibit != null) {
+        private void ConfigurePostProcessing() {
+            GameObject postFxGo = GameObject.Find("PostFX");
+            if (postFxGo == null) {
                 return;
             }
-            Type type = FindType("ViitorCloud.KMaxPCBAssembly.PcbWorkingExhibit");
-            if (type != null) {
-                slot.model.gameObject.AddComponent(type);
+            UnityEngine.Rendering.Volume vol = postFxGo.GetComponent<UnityEngine.Rendering.Volume>();
+            if (vol == null) {
+                return;
+            }
+            UnityEngine.Rendering.VolumeProfile profile = vol.sharedProfile != null ? vol.sharedProfile : vol.profile;
+            if (profile == null) {
+                return;
+            }
+            UnityEngine.Rendering.Universal.ColorAdjustments colorAdj;
+            if (profile.TryGet<UnityEngine.Rendering.Universal.ColorAdjustments>(out colorAdj)) {
+                colorAdj.postExposure.overrideState = true;
+                colorAdj.postExposure.value = -0.15f;
+            }
+        }
+
+        private static void BindPcbExhibit(Slot slot) {
+            Component exhibit = slot.model.GetComponent("PcbWorkingExhibit");
+            if (exhibit == null) {
+                Type type = FindType("ViitorCloud.KMaxPCBAssembly.PcbWorkingExhibit");
+                if (type != null) {
+                    slot.model.gameObject.AddComponent(type);
+                }
+            }
+            Transform[] children = slot.model.GetComponentsInChildren<Transform>(true);
+            for (int i = 0; i < children.Length; i++) {
+                if (children[i] != null && children[i].name.StartsWith("LedHalo")) {
+                    children[i].gameObject.SetActive(false);
+                    Destroy(children[i].gameObject);
+                }
             }
         }
 
@@ -461,10 +934,102 @@ namespace ViitorCloud.KmaxPresentation {
                 if (!(renderers[i] is MeshRenderer) && !(renderers[i] is SkinnedMeshRenderer)) {
                     continue;
                 }
+                if (renderers[i].name.Contains("Halo") || renderers[i].name.Contains("Billboard")) {
+                    continue;
+                }
                 Material[] materials = renderers[i].materials;
                 for (int m = 0; m < materials.Length; m++) {
                     if (materials[m] != null && materials[m].HasProperty(CullId)) {
                         materials[m].SetFloat(CullId, 0.0f);
+                    }
+                }
+            }
+        }
+
+        /// <summary>Prevents blown-out white surfaces and excessive specular glare on table tops and retail furniture, while preserving glossy automotive glass/paint and preventing crushed black cabin interiors.</summary>
+        private static void CalibrateMaterials(GameObject model) {
+            Renderer[] renderers = model.GetComponentsInChildren<Renderer>(true);
+            for (int i = 0; i < renderers.Length; i++) {
+                if (!(renderers[i] is MeshRenderer) && !(renderers[i] is SkinnedMeshRenderer)) {
+                    continue;
+                }
+                if (renderers[i].name.Contains("Halo") || renderers[i].name.Contains("Billboard")) {
+                    continue;
+                }
+                Material[] materials = renderers[i].materials;
+                for (int m = 0; m < materials.Length; m++) {
+                    Material mat = materials[m];
+                    if (mat == null) {
+                        continue;
+                    }
+
+                    string matName = mat.name;
+                    bool isGlass = matName.IndexOf("Glass", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                  matName.IndexOf("Lens", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                  matName.IndexOf("Window", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                  matName.IndexOf("windo", StringComparison.OrdinalIgnoreCase) >= 0;
+                    bool isAutomotive = matName.IndexOf("Paint", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                       matName.IndexOf("Wheel", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                       matName.IndexOf("Rim", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                       matName.IndexOf("Chrome", StringComparison.OrdinalIgnoreCase) >= 0;
+                    bool isInterior = matName.IndexOf("Interior", StringComparison.OrdinalIgnoreCase) >= 0;
+
+                    if (isGlass) {
+                        if (mat.HasProperty("_Smoothness")) {
+                            mat.SetFloat("_Smoothness", 0.95f);
+                        }
+                        if (mat.HasProperty("_BaseColor")) {
+                            Color col = mat.GetColor("_BaseColor");
+                            if (col.r < 0.08f && col.g < 0.08f && col.b < 0.08f) {
+                                mat.SetColor("_BaseColor", new Color(0.10f, 0.12f, 0.15f, Mathf.Max(col.a, 0.35f)));
+                            }
+                        }
+                        continue;
+                    }
+
+                    if (isInterior) {
+                        if (mat.HasProperty("_BaseColor")) {
+                            Color col = mat.GetColor("_BaseColor");
+                            if (col.r < 0.06f && col.g < 0.06f && col.b < 0.06f) {
+                                mat.SetColor("_BaseColor", new Color(0.11f, 0.11f, 0.13f, col.a));
+                            }
+                        }
+                        continue;
+                    }
+
+                    bool isWhiteSurface = false;
+                    if (mat.HasProperty("_BaseColor")) {
+                        Color col = mat.GetColor("_BaseColor");
+                        float lum = 0.2126f * col.r + 0.7152f * col.g + 0.0722f * col.b;
+                        if (lum >= 0.70f || (col.r >= 0.70f && col.g >= 0.70f && col.b >= 0.70f)) {
+                            isWhiteSurface = true;
+                            float maxComp = Mathf.Max(col.r, Mathf.Max(col.g, col.b));
+                            float scale = maxComp > 0.62f ? (0.62f / maxComp) : 1.0f;
+                            mat.SetColor("_BaseColor", new Color(col.r * scale, col.g * scale, col.b * scale, col.a));
+                        }
+                    }
+                    if (mat.HasProperty("_Color")) {
+                        Color col = mat.GetColor("_Color");
+                        float lum = 0.2126f * col.r + 0.7152f * col.g + 0.0722f * col.b;
+                        if (lum >= 0.70f || (col.r >= 0.70f && col.g >= 0.70f && col.b >= 0.70f)) {
+                            isWhiteSurface = true;
+                            float maxComp = Mathf.Max(col.r, Mathf.Max(col.g, col.b));
+                            float scale = maxComp > 0.62f ? (0.62f / maxComp) : 1.0f;
+                            mat.SetColor("_Color", new Color(col.r * scale, col.g * scale, col.b * scale, col.a));
+                        }
+                    }
+                    float maxSmooth = isWhiteSurface ? 0.08f : (isAutomotive ? 0.85f : 0.22f);
+                    if (mat.HasProperty("_Smoothness")) {
+                        float smoothness = mat.GetFloat("_Smoothness");
+                        if (smoothness > maxSmooth) {
+                            mat.SetFloat("_Smoothness", maxSmooth);
+                        }
+                    }
+                    if (mat.HasProperty("_Glossiness")) {
+                        float gloss = mat.GetFloat("_Glossiness");
+                        if (gloss > maxSmooth) {
+                            mat.SetFloat("_Glossiness", maxSmooth);
+                        }
                     }
                 }
             }
@@ -478,6 +1043,9 @@ namespace ViitorCloud.KmaxPresentation {
                 if (!(renderers[i] is MeshRenderer) && !(renderers[i] is SkinnedMeshRenderer)) {
                     continue;
                 }
+                if (renderers[i].name.Contains("Halo") || renderers[i].name.Contains("Billboard")) {
+                    continue;
+                }
                 if (!found) {
                     bounds = renderers[i].bounds;
                     found = true;
@@ -488,8 +1056,9 @@ namespace ViitorCloud.KmaxPresentation {
             return bounds;
         }
 
-        private void FitModel(Slot slot, float fitSize) {
-            slot.holder.localPosition = Vector3.zero;
+        private void FitModel(Slot slot, PresentationItem item) {
+            float fitSize = item.fitSize;
+            slot.holder.localPosition = HolderOrigin(item);
             slot.holder.localRotation = Quaternion.identity;
             slot.holder.localScale = Vector3.one;
 
@@ -500,22 +1069,220 @@ namespace ViitorCloud.KmaxPresentation {
                 return;
             }
 
-            // fitSize is the tallest the model may stand; the footprint cap keeps a wide model (a car, a bed, a biplane) inside the frame as it turns.
-            float footprint = Mathf.Sqrt(bounds.size.x * bounds.size.x + bounds.size.z * bounds.size.z);
-            float byHeight = bounds.size.y > 0.0001f ? fitSize / bounds.size.y : float.MaxValue;
-            float byFootprint = footprint > 0.0001f ? maxFootprint / footprint : float.MaxValue;
-            float scale = Mathf.Min(byHeight, byFootprint);
-            if (scale > 100000.0f) {
-                scale = 1.0f;
+            float scale;
+            Camera viewCamera = ResolveFitCamera();
+            if (StereoRigPresent()) {
+                scale = StereoFitScale(bounds, HeightFill(item));
+            } else if (viewCamera != null) {
+                scale = ScreenFitScale(viewCamera, slot.holder.position, bounds, HeightFill(item));
+            } else {
+                // fitSize is the tallest the model may stand; the footprint cap keeps a wide model (a car, a bed, a biplane) inside the frame as it turns.
+                float footprint = Mathf.Sqrt(bounds.size.x * bounds.size.x + bounds.size.z * bounds.size.z);
+                float byHeight = bounds.size.y > 0.0001f ? fitSize / bounds.size.y : float.MaxValue;
+                float byFootprint = footprint > 0.0001f ? maxFootprint / footprint : float.MaxValue;
+                scale = Mathf.Min(byHeight, byFootprint);
+                if (scale > 100000.0f) {
+                    scale = 1.0f;
+                }
+                scale = scale * 0.90f;
             }
-            // 5% top and bottom padding on each edge for 3D models.
-            const float EdgePadding = 0.90f;
-            scale = scale * EdgePadding;
+            scale = scale * Mathf.Max(0.01f, item.scaleMultiplier > 0.0f ? item.scaleMultiplier : 1.0f);
             slot.model.localScale = slot.model.localScale * scale;
+            slot.fittedOffset = item.positionOffset;
+            slot.fittedScale = item.scaleMultiplier;
+            slot.fittedPadding = item.topBottomPadding;
 
             Bounds scaled = MeshBounds(slot.model, out found);
-            Vector3 centreLocal = slot.spinner.InverseTransformPoint(scaled.center);
+            Vector3 centreLocal;
+            Transform sunChild = FindChildByName(slot.model, "Sun");
+            if (sunChild != null) {
+                bool sunFound;
+                Bounds sunBounds = MeshBounds(sunChild, out sunFound);
+                if (sunFound) {
+                    centreLocal = slot.spinner.InverseTransformPoint(sunBounds.center);
+                } else {
+                    centreLocal = slot.spinner.InverseTransformPoint(sunChild.position);
+                }
+            } else {
+                centreLocal = slot.spinner.InverseTransformPoint(scaled.center);
+            }
             slot.model.localPosition -= centreLocal;
+            slot.footprint = new Vector2(Mathf.Max(0.50f, scaled.size.x), Mathf.Max(0.50f, scaled.size.z));
+        }
+
+        private void ResolvePlacement() {
+            if (shadowFloor == null) {
+                Transform[] floorMarkers = FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+                for (int i = 0; i < floorMarkers.Length; i++) {
+                    if (floorMarkers[i].name == "ModelFloor") {
+                        shadowFloor = floorMarkers[i];
+                        break;
+                    }
+                }
+            }
+            if (modelPlacement == null) {
+                // The marker may be switched off in the scene (it is only a position), so inactive objects are searched too.
+                Transform[] everything = FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+                for (int i = 0; i < everything.Length; i++) {
+                    if (everything[i].name == "ModelPlacement") {
+                        modelPlacement = everything[i];
+                        break;
+                    }
+                }
+            }
+            if (modelPlacement == null) {
+                // The Carousel origin is the stage when there is no ModelPlacement marker.
+                return;
+            }
+            Renderer[] markers = modelPlacement.GetComponentsInChildren<Renderer>(true);
+            for (int i = 0; i < markers.Length; i++) {
+                markers[i].enabled = false;
+            }
+            Collider[] markerColliders = modelPlacement.GetComponentsInChildren<Collider>(true);
+            for (int i = 0; i < markerColliders.Length; i++) {
+                markerColliders[i].enabled = false;
+            }
+        }
+
+        // True when the scene has the Kmax rig: models then live in the display's own space, inside its comfort volume.
+        private bool StereoRigPresent() {
+            if (!stereoFit) {
+                return false;
+            }
+            if (stereoRig == null) {
+                XRRig rig = FindFirstObjectByType<XRRig>();
+                if (rig != null) {
+                    stereoRig = rig.transform;
+                }
+            }
+            return stereoRig != null;
+        }
+
+        private static float PopOutLimit() {
+            return (StereoCamera.DefaultDistance - ComfortNearFromCamera) * XRRig.ViewScale;
+        }
+
+        private static float DepthLimit() {
+            return (ComfortFarFromCamera - StereoCamera.DefaultDistance) * XRRig.ViewScale;
+        }
+
+        // Where a model turns on the view axis (positive is behind the glass). On the glass by default, as in the anatomy scene, so the
+        // near half of it is in front of the screen.
+        private float BudgetCentre() {
+            return stageCentre * XRRig.ViewScale;
+        }
+
+        // Largest uniform factor that keeps the model, as it turns, inside the display's comfort volume and the stereo window:
+        // its height inside the fraction of the glass height, its footprint circle inside the depth budget, and its width (magnified
+        // by the projection from the eye when it comes forward) inside the glass width.
+        private float StereoFitScale(Bounds bounds, float heightFill) {
+            float viewScale = XRRig.ViewScale;
+            Vector2 window = XRRig.ViewSize;
+            float eye = StereoCamera.DefaultDistance * viewScale;
+            float height = Mathf.Max(0.0001f, bounds.size.y);
+            float diagonal = Mathf.Max(0.0001f, Mathf.Sqrt(bounds.size.x * bounds.size.x + bounds.size.z * bounds.size.z));
+
+            float byHeight = window.y * heightFill / height;
+            float centre = BudgetCentre();
+            // The turning footprint is a circle of radius diagonal / 2 around the centre: its front must stay inside the pop-out limit
+            // and its back inside the depth limit.
+            float margin = ComfortMargin * viewScale;
+            float radiusCap = Mathf.Min(centre + PopOutLimit() - margin, DepthLimit() - margin - centre);
+            float byBudget = Mathf.Max(0.01f * viewScale, radiusCap * 2.0f) / diagonal;
+
+            float scale = Mathf.Min(byHeight, byBudget);
+            for (int i = 0; i < 6; i++) {
+                float radius = diagonal * scale * 0.5f;
+                float frontDepth = centre - radius;
+                float toEye = Mathf.Max(0.05f * viewScale, frontDepth + eye);
+                float magnification = frontDepth < 0.0f ? eye / toEye : 1.0f;
+                float byWidth = window.x * 0.5f * WindowFill / (magnification * diagonal * 0.5f);
+                scale = Mathf.Min(byHeight, Mathf.Min(byBudget, byWidth));
+            }
+            return scale;
+        }
+
+        private Vector3 HolderOrigin(PresentationItem item) {
+            Vector3 offset = item != null ? item.positionOffset : Vector3.zero;
+            if (StereoRigPresent()) {
+                Vector3 stage = stereoRig.position + stereoRig.forward * BudgetCentre() + offset;
+                return carouselRoot != null ? carouselRoot.InverseTransformPoint(stage) : stage;
+            }
+            Vector3 world = modelPlacement != null ? modelPlacement.position + offset : (carouselRoot != null ? carouselRoot.position + offset : offset);
+            if (carouselRoot == null) {
+                return world;
+            }
+            return carouselRoot.InverseTransformPoint(world);
+        }
+
+        private float HeightFill(PresentationItem item) {
+            if (item != null && item.topBottomPadding > 0.0f) {
+                return Mathf.Clamp(1.0f - 2.0f * item.topBottomPadding, 0.1f, 1.0f);
+            }
+            return fitHeightFraction;
+        }
+
+        private Camera ResolveFitCamera() {
+            if (fitCamera != null) {
+                return fitCamera;
+            }
+            Camera best = null;
+            Camera[] everything = FindObjectsByType<Camera>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            for (int i = 0; i < everything.Length; i++) {
+                if (everything[i].name == "left" && everything[i].transform.root.name == "XRRig") {
+                    best = everything[i];
+                    break;
+                }
+            }
+            for (int i = 0; best == null && i < everything.Length; i++) {
+                if (everything[i].transform.root.name == "XRRig") {
+                    best = everything[i];
+                }
+            }
+            if (best == null) {
+                best = Camera.main;
+            }
+            if (best != null) {
+                fitCamera = best;
+                Debug.Log("[Presentation] Fitting models to camera '" + best.name + "' (fov " + best.fieldOfView + ").");
+            } else {
+                Debug.LogWarning("[Presentation] No camera found to fit models to; using the fixed fit sizes.");
+            }
+            return best;
+        }
+
+        // Largest uniform factor that keeps the model, including its turn, inside the screen fill fractions at the placement distance.
+        private float ScreenFitScale(Camera viewCamera, Vector3 centre, Bounds bounds, float heightFill) {
+            float height = Mathf.Max(0.0001f, bounds.size.y);
+            float diagonal = Mathf.Max(0.0001f, Mathf.Sqrt(bounds.size.x * bounds.size.x + bounds.size.z * bounds.size.z));
+            float depth = Mathf.Max(0.1f, Vector3.Dot(centre - viewCamera.transform.position, viewCamera.transform.forward));
+            // The Kmax rig draws with its own projection matrix, so the frustum is read from the matrix, not from fieldOfView.
+            Matrix4x4 projection = viewCamera.projectionMatrix;
+            float tanVertical = Mathf.Abs(projection.m11) > 0.0001f ? 1.0f / Mathf.Abs(projection.m11) : Mathf.Tan(viewCamera.fieldOfView * 0.5f * Mathf.Deg2Rad);
+            float tanHorizontal = Mathf.Abs(projection.m00) > 0.0001f ? 1.0f / Mathf.Abs(projection.m00) : tanVertical * 16.0f / 9.0f;
+            float scale = 1.0f;
+            for (int i = 0; i < 6; i++) {
+                float frontDepth = Mathf.Max(0.1f, depth - diagonal * scale * 0.5f);
+                float visibleHeight = 2.0f * frontDepth * tanVertical;
+                float visibleWidth = 2.0f * frontDepth * tanHorizontal;
+                float byHeight = visibleHeight * heightFill / height;
+                float byWidth = visibleWidth * fitWidthFraction / diagonal;
+                scale = Mathf.Min(byHeight, byWidth);
+            }
+            return scale;
+        }
+
+        private static Transform FindChildByName(Transform parent, string childName) {
+            if (parent.name == childName) {
+                return parent;
+            }
+            for (int i = 0; i < parent.childCount; i++) {
+                Transform found = FindChildByName(parent.GetChild(i), childName);
+                if (found != null) {
+                    return found;
+                }
+            }
+            return null;
         }
 
         private void BuildExplodeParts(Slot slot) {
@@ -600,28 +1367,18 @@ namespace ViitorCloud.KmaxPresentation {
         private void LayoutSlots() {
             foreach (KeyValuePair<int, Slot> pair in slots) {
                 Slot slot = pair.Value;
-                float offset = pair.Key - carouselPosition;
-                float a = Mathf.Abs(offset);
-                bool visible = a < 2.6f;
+                bool visible = pair.Key == currentIndex;
                 if (slot.holder.gameObject.activeSelf != visible) {
                     slot.holder.gameObject.SetActive(visible);
                 }
                 if (!visible) {
+                    slot.holder.localScale = Vector3.zero;
                     continue;
                 }
-
-                float sign = Mathf.Sign(offset);
-                float x;
-                float scale;
-                if (a <= 1.0f) {
-                    x = a * neighbourX;
-                    scale = Mathf.Lerp(1.0f, 0.42f, a);
-                } else {
-                    x = neighbourX + (a - 1.0f) * 0.8f;
-                    scale = Mathf.Lerp(0.42f, 0.28f, Mathf.Clamp01(a - 1.0f));
+                if (!slot.popStarted) {
+                    PlayPopSequence(slot);
                 }
-                slot.holder.localPosition = new Vector3(sign * x, -0.1f * Mathf.Min(a, 1.0f), a * 0.9f);
-                slot.holder.localScale = Vector3.one * scale;
+                slot.holder.localPosition = HolderOrigin(slot.item);
             }
         }
 
@@ -633,6 +1390,45 @@ namespace ViitorCloud.KmaxPresentation {
                 }
                 bool isCentre = pair.Key == currentIndex;
                 AnimateSlot(slot, dt, isCentre);
+            }
+
+            if (floorShadowTransform != null && floorShadowRenderer != null && slots.ContainsKey(currentIndex)) {
+                Slot centreSlot = slots[currentIndex];
+                float popScale = centreSlot.holder.localScale.x;
+                if (popScale > 0.01f) {
+                    if (!floorShadowRenderer.enabled) {
+                        floorShadowRenderer.enabled = true;
+                    }
+                    bool found;
+                    Bounds bounds = MeshBounds(centreSlot.model, out found);
+                    float lowestY = found ? bounds.min.y : -0.695f;
+                    float contactY = found ? (lowestY + 0.01f * Mathf.Max(1.0f, bounds.size.y)) : -0.695f;
+                    float shadowAlpha = ShadowMaxAlpha;
+                    if (shadowFloor != null && found) {
+                        // A floating model drops its shadow onto the floor below it; the shadow gets fainter the higher the model hovers.
+                        float gap = Mathf.Max(0.0f, lowestY - shadowFloor.position.y);
+                        contactY = shadowFloor.position.y + 0.01f;
+                        shadowAlpha = Mathf.Lerp(ShadowMaxAlpha, ShadowMaxAlpha * 0.35f, Mathf.Clamp01(gap / Mathf.Max(0.0001f, bounds.size.y)));
+                    }
+                    float posX = found ? bounds.center.x : centreSlot.holder.position.x;
+                    float posZ = found ? bounds.center.z : centreSlot.holder.position.z;
+                    // The shadow follows what the model covers on the floor right now, so it grows and shrinks with every model and as it turns.
+                    float width = found ? Mathf.Max(0.05f, bounds.size.x * ShadowPadding) : Mathf.Max(1.20f, centreSlot.footprint.x * 1.50f) * popScale;
+                    float length = found ? Mathf.Max(0.05f, bounds.size.z * ShadowPadding) : Mathf.Max(1.40f, centreSlot.footprint.y * 1.50f) * popScale;
+                    floorShadowTransform.position = new Vector3(posX, contactY, posZ);
+                    floorShadowTransform.rotation = Quaternion.Euler(90.0f, 0.0f, 0.0f);
+                    floorShadowTransform.localScale = new Vector3(width, length, 1.0f);
+                    if (shadowBlock == null) {
+                        shadowBlock = new MaterialPropertyBlock();
+                    }
+                    floorShadowRenderer.GetPropertyBlock(shadowBlock);
+                    shadowBlock.SetColor("_BaseColor", new Color(0.0f, 0.0f, 0.0f, shadowAlpha));
+                    floorShadowRenderer.SetPropertyBlock(shadowBlock);
+                } else {
+                    if (floorShadowRenderer.enabled) {
+                        floorShadowRenderer.enabled = false;
+                    }
+                }
             }
         }
 
@@ -671,10 +1467,11 @@ namespace ViitorCloud.KmaxPresentation {
             }
 
             // Slow bob keeps still-life items alive between turns.
+            // The float is a few millimetres in the display's own space (it was 9 cm once the carousel scale was applied), one slow
+            // sine with eased ends, the same for every model.
             if (isCentre) {
-                Vector3 p = slot.holder.localPosition;
-                p.y += Mathf.Sin(itemTimer * 1.3f) * 0.015f;
-                slot.holder.localPosition = p;
+                float bob = Mathf.Sin(itemTimer * BobRadiansPerSecond) * BobMetres * (StereoRigPresent() ? XRRig.ViewScale : 1.0f);
+                slot.holder.position = slot.holder.position + Vector3.up * bob;
             }
         }
 

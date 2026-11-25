@@ -3,7 +3,11 @@
     "rootNamespace": "ViitorCloud.KmaxPresentation",
     "references": [
         "Unity.TextMeshPro",
-        "UnityEngine.UI"
+        "UnityEngine.UI",
+        "DOTween.Modules",
+        "Unity.RenderPipelines.Universal.Runtime",
+        "Unity.RenderPipelines.Core.Runtime",
+        "KmaxXR.Core"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
