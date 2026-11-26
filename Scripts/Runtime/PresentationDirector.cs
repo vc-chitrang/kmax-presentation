@@ -36,14 +36,6 @@ namespace ViitorCloud.KmaxPresentation {
         public float swayDegrees = 32.0f;
         public bool pulse;
         public string anatomyTopic;
-
-        [Header("Placement tuning (live in Play, keep with Save tuning)")]
-        [Tooltip("World-space shift from ModelPlacement, in metres.")]
-        public Vector3 positionOffset = Vector3.zero;
-        [Tooltip("Multiplies the automatic screen fit. 1 = fit as computed.")]
-        [Range(0.1f, 3.0f)] public float scaleMultiplier = 1.0f;
-        [Tooltip("Free screen space kept above and below the model, as a fraction of the screen height. 0 = use the director default.")]
-        [Range(0.0f, 0.45f)] public float topBottomPadding = 0.20f;
     }
 
     /// <summary>
@@ -86,6 +78,10 @@ namespace ViitorCloud.KmaxPresentation {
         [SerializeField] [Range(0.3f, 1.0f)] private float fitWidthFraction = 0.85f;
         [SerializeField] private bool autoAdvance = true;
         [SerializeField] private bool debugBrowse = true;
+        [SerializeField, Tooltip("Retunes the Key, Fill and Rim lights for each model. Off keeps the scene's own lights as they are built.")]
+        private bool perItemLighting = true;
+        [SerializeField, Tooltip("Keeps the stage at the carousel's origin instead of in front of the rig, for a scene whose viewer orbits the rig around the model.")]
+        private bool anchorStageToOrigin;
 
         public bool AutoAdvance {
             get {
@@ -124,9 +120,7 @@ namespace ViitorCloud.KmaxPresentation {
             public int aircraftConcept = -1;
             public Sequence pop;
             public bool popStarted;
-            public Vector3 fittedOffset;
-            public float fittedScale;
-            public float fittedPadding;
+            public bool refitRequested;
         }
 
         private sealed class ExplodePart {
@@ -240,7 +234,7 @@ namespace ViitorCloud.KmaxPresentation {
             Canvas uiCanvas = panelGroup != null ? panelGroup.GetComponentInParent<Canvas>() : null;
             if (uiCanvas != null) {
                 PresentationVersionLabel.Create(uiCanvas.rootCanvas, titleText);
-            } else {
+            } else if (panelGroup != null) {
                 Debug.LogError("[Presentation] No UI canvas above the info panel; the version label is not shown.");
             }
 
@@ -258,7 +252,7 @@ namespace ViitorCloud.KmaxPresentation {
                 if (itemTimer >= ShowSeconds) {
                     itemTimer = 0.0f;
                 }
-                RefitIfTuningChanged();
+                RefitIfRequested();
             } else if (autoAdvance && itemTimer >= ShowSeconds) {
                 Advance();
             }
@@ -420,16 +414,17 @@ namespace ViitorCloud.KmaxPresentation {
             }
         }
 
-        /// <summary>Applies inspector edits of the shown model's offset, scale and padding at once, without reloading it.</summary>
-        private void RefitIfTuningChanged() {
+        /// <summary>Fits the shown model again, without reloading it, when a refit was requested (the first browsed model, once the rig has settled).</summary>
+        private void RefitIfRequested() {
             if (!slots.ContainsKey(currentIndex)) {
                 return;
             }
             Slot slot = slots[currentIndex];
             PresentationItem item = slot.item;
-            if (slot.fittedOffset == item.positionOffset && Mathf.Approximately(slot.fittedScale, item.scaleMultiplier) && Mathf.Approximately(slot.fittedPadding, item.topBottomPadding)) {
+            if (!slot.refitRequested) {
                 return;
             }
+            slot.refitRequested = false;
             if (slot.parts.Count > 0) {
                 ApplyExplode(slot, 0.0f);
             }
@@ -513,7 +508,7 @@ namespace ViitorCloud.KmaxPresentation {
                     // popped in, so it can never stay at a size measured before the rig was ready.
                     if (!firstBrowseRefitDone && slots.ContainsKey(currentIndex)) {
                         firstBrowseRefitDone = true;
-                        slots[currentIndex].fittedScale = -1.0f;
+                        slots[currentIndex].refitRequested = true;
                     }
                 });
             }
@@ -530,10 +525,7 @@ namespace ViitorCloud.KmaxPresentation {
             Bounds bounds = MeshBounds(model, out found);
             Debug.Log("[Presentation Browse] " + browseIndex + " / " + items.Count + "  " + items[browseIndex].title
                 + "  modelLocalScale=" + model.localScale.x.ToString("F4")
-                + "  worldSize=" + (found ? bounds.size.ToString("F2") : "none")
-                + "  offset=" + items[browseIndex].positionOffset.ToString("F2")
-                + "  scaleMultiplier=" + items[browseIndex].scaleMultiplier.ToString("F2")
-                + "  topBottomPadding=" + items[browseIndex].topBottomPadding.ToString("F2"));
+                + "  worldSize=" + (found ? bounds.size.ToString("F2") : "none"));
         }
 
         public int ItemCount {
@@ -608,6 +600,90 @@ namespace ViitorCloud.KmaxPresentation {
             return null;
         }
 
+        /// <summary>Title of the model on stage, or an empty string.</summary>
+        public string GetCentreTitle() {
+            if (slots.ContainsKey(currentIndex)) {
+                return slots[currentIndex].item.title;
+            }
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// Size of the model on stage at its fitted scale, measured in its spinner's space so the pop scale of the holder does not enter
+        /// it: <paramref name="turnRadius"/> is the furthest any mesh corner reaches from the turning axis (what the model sweeps as it
+        /// turns), <paramref name="halfHeight"/> the furthest above or below its centre. False when nothing is on stage.
+        /// </summary>
+        public bool TryGetCentreExtents(out float turnRadius, out float halfHeight) {
+            turnRadius = 0.0f;
+            halfHeight = 0.0f;
+            if (!slots.ContainsKey(currentIndex)) {
+                return false;
+            }
+
+            Transform spinner = slots[currentIndex].spinner;
+            Renderer[] renderers = spinner.GetComponentsInChildren<Renderer>(true);
+            bool found = false;
+            for (int i = 0; i < renderers.Length; i++) {
+                Bounds local;
+                if (!TryGetLocalMeshBounds(renderers[i], out local)) {
+                    continue;
+                }
+
+                Matrix4x4 toSpinner = RelativeMatrix(renderers[i].transform, spinner);
+                Vector3 min = local.min;
+                Vector3 max = local.max;
+                for (int c = 0; c < 8; c++) {
+                    Vector3 corner = new Vector3((c & 1) == 0 ? min.x : max.x, (c & 2) == 0 ? min.y : max.y, (c & 4) == 0 ? min.z : max.z);
+                    Vector3 point = toSpinner.MultiplyPoint3x4(corner);
+                    turnRadius = Mathf.Max(turnRadius, Mathf.Sqrt(point.x * point.x + point.z * point.z));
+                    halfHeight = Mathf.Max(halfHeight, Mathf.Abs(point.y));
+                    found = true;
+                }
+            }
+
+            return found;
+        }
+
+        private static bool TryGetLocalMeshBounds(Renderer renderer, out Bounds bounds) {
+            bounds = new Bounds();
+            if (renderer.name.Contains("Halo") || renderer.name.Contains("Billboard")) {
+                return false;
+            }
+
+            SkinnedMeshRenderer skinned = renderer as SkinnedMeshRenderer;
+            if (skinned != null) {
+                if (skinned.sharedMesh == null) {
+                    return false;
+                }
+                bounds = skinned.sharedMesh.bounds;
+                return true;
+            }
+
+            if (!(renderer is MeshRenderer)) {
+                return false;
+            }
+
+            MeshFilter filter = renderer.GetComponent<MeshFilter>();
+            if (filter == null || filter.sharedMesh == null) {
+                return false;
+            }
+
+            bounds = filter.sharedMesh.bounds;
+            return true;
+        }
+
+        // Product of the local transforms from child up to (not including) ancestor; never inverts a matrix, so a holder at scale 0
+        // during its pop does not matter.
+        private static Matrix4x4 RelativeMatrix(Transform child, Transform ancestor) {
+            Matrix4x4 matrix = Matrix4x4.identity;
+            Transform current = child;
+            while (current != null && current != ancestor) {
+                matrix = Matrix4x4.TRS(current.localPosition, current.localRotation, current.localScale) * matrix;
+                current = current.parent;
+            }
+            return matrix;
+        }
+
         public Transform GetFloorShadow() {
             return floorShadowTransform;
         }
@@ -628,7 +704,9 @@ namespace ViitorCloud.KmaxPresentation {
             if (descriptionText != null) {
                 descriptionText.text = string.IsNullOrEmpty(item.shortDescription) ? item.description : item.shortDescription;
             }
-            ApplyPerItemLighting(item);
+            if (perItemLighting) {
+                ApplyPerItemLighting(item);
+            }
         }
 
         private void ApplyPerItemLighting(PresentationItem item) {
@@ -1086,11 +1164,7 @@ namespace ViitorCloud.KmaxPresentation {
                 }
                 scale = scale * 0.90f;
             }
-            scale = scale * Mathf.Max(0.01f, item.scaleMultiplier > 0.0f ? item.scaleMultiplier : 1.0f);
             slot.model.localScale = slot.model.localScale * scale;
-            slot.fittedOffset = item.positionOffset;
-            slot.fittedScale = item.scaleMultiplier;
-            slot.fittedPadding = item.topBottomPadding;
 
             Bounds scaled = MeshBounds(slot.model, out found);
             Vector3 centreLocal;
@@ -1203,12 +1277,14 @@ namespace ViitorCloud.KmaxPresentation {
         }
 
         private Vector3 HolderOrigin(PresentationItem item) {
-            Vector3 offset = item != null ? item.positionOffset : Vector3.zero;
+            if (anchorStageToOrigin && carouselRoot != null) {
+                return Vector3.zero;
+            }
             if (StereoRigPresent()) {
-                Vector3 stage = stereoRig.position + stereoRig.forward * BudgetCentre() + offset;
+                Vector3 stage = stereoRig.position + stereoRig.forward * BudgetCentre();
                 return carouselRoot != null ? carouselRoot.InverseTransformPoint(stage) : stage;
             }
-            Vector3 world = modelPlacement != null ? modelPlacement.position + offset : (carouselRoot != null ? carouselRoot.position + offset : offset);
+            Vector3 world = modelPlacement != null ? modelPlacement.position : (carouselRoot != null ? carouselRoot.position : Vector3.zero);
             if (carouselRoot == null) {
                 return world;
             }
@@ -1216,9 +1292,6 @@ namespace ViitorCloud.KmaxPresentation {
         }
 
         private float HeightFill(PresentationItem item) {
-            if (item != null && item.topBottomPadding > 0.0f) {
-                return Mathf.Clamp(1.0f - 2.0f * item.topBottomPadding, 0.1f, 1.0f);
-            }
             return fitHeightFraction;
         }
 

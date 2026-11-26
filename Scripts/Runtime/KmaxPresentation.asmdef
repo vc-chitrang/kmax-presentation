@@ -7,7 +7,8 @@
         "DOTween.Modules",
         "Unity.RenderPipelines.Universal.Runtime",
         "Unity.RenderPipelines.Core.Runtime",
-        "KmaxXR.Core"
+        "KmaxXR.Core",
+        "KmaxDisplay"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -5,6 +5,8 @@
         "KmaxPresentation",
         "KmaxSolarSystem.Editor",
         "KmaxDisplayExample",
+        "KmaxDisplay",
+        "KmaxDisplay.Editor",
         "KmaxXR.Core",
         "Kmax.InputModule",
         "Unity.RenderPipelines.Core.Runtime",
