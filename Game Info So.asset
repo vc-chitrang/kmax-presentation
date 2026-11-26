@@ -70,8 +70,8 @@ MonoBehaviour:
       title: KMax Presentation
       companyName: ViitorCloud
       bundleId: 
-      version: 1.0.1
-      versionCode: 13
+      version: 1.0.2
+      versionCode: 14
       icon: {fileID: 2800000, guid: 3408c998c445baa4e86f9fb38e827024, type: 3}
       splashScreenLogo: {fileID: 0}
       splashScreenLogoBg: {fileID: 0}

@@ -1133,8 +1133,8 @@ namespace ViitorCloud.KmaxPresentation {
         /// <summary>Lowest roughness a jewellery material keeps (about 0.17 as shipped; 0.42 still glared in the showcase), so metal reads as satin and not as a mirror.</summary>
         private const float JewelleryMinRoughness = 0.55f;
         private const float JewelleryMaxMetallic = 0.80f;
-        /// <summary>Width, in model units, of a planet's path in the Solar System (it was 0.0012).</summary>
-        private const float OrbitPathWidth = 0.0045f;
+        /// <summary>Width, in model units, of a planet's path in the Solar System (it was 0.0012; the owner then asked for very thin lines).</summary>
+        private const float OrbitPathWidth = 0.0007f;
         /// <summary>Owner, 2026-11-26: every planet path is dark grey.</summary>
         private static readonly Color OrbitPathColour = new Color(0.36f, 0.37f, 0.40f, 1.0f);
 

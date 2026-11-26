@@ -36,8 +36,8 @@ namespace ViitorCloud.KmaxPresentation.Editor {
         private const string ItemsSourceScenePath = "Assets/Games/kmax-presentation/Scenes/PresentationScene_v01.unity";
         /// <summary>The 30 degree incline of the shoes (owner, 2026-11-26), set as a base rotation like the rings' lay-back.</summary>
         private const float FootwearTiltDegrees = 30.0f;
-        /// <summary>How far the Solar System is inclined towards the viewer (owner, 2026-11-26: fix the angle; it was 38, then +55, which the owner had flipped to -55).</summary>
-        private const float SolarSystemTiltDegrees = -55.0f;
+        /// <summary>How far the Solar System is inclined towards the viewer (owner, 2026-11-26: fix the angle; it was 38, then +55, which the owner had flipped to -55; finally 0, parallel to the ground).</summary>
+        private const float SolarSystemTiltDegrees = 0.0f;
         private const float PendantTiltDegrees = -35.0f;
         private const string FashionModelsPath = "Assets/Games/kmax-presentation/Fashion/Models";
         private const string StudioReflectionPath = "Assets/Games/kmax-presentation/Rendering/ShowcaseStudioReflection.asset";
@@ -991,6 +991,17 @@ namespace ViitorCloud.KmaxPresentation.Editor {
                     // These two lie flat (the finger hole points straight up, the stones on the far side). Tipping them 55 degrees towards
                     // the viewer gives the same laid-back view as the other rings: the hole 35 degrees above the horizontal.
                     return new Vector3(-55.0f, 0.0f, 0.0f);
+                case "braclate_00":
+                case "bracelet_00":
+                case "earring_03":
+                    // Owner, 2026-11-26: the same lay-back as the rings (the face tilts 35 degrees up towards the viewer), so these pieces
+                    // never turn edge-on on the turntable: Aphrodite Bracelet and Isolde Earrings.
+                    return new Vector3(-35.0f, 0.0f, 0.0f);
+                case "earring_02":
+                case "necklace_03":
+                    // Opaline Earrings and Marchesa Necklace: the owner asked for the opposite incline of the others (+35, the face tips
+                    // 35 degrees down).
+                    return new Vector3(35.0f, 0.0f, 0.0f);
                 default:
                     return Vector3.zero;
             }
