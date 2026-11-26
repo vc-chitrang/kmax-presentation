@@ -1,0 +1,150 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48f92fef0a15bcc48998d9e493b68b71, type: 3}
+  m_Name: PresentationTuning
+  m_EditorClassIdentifier: KmaxPresentation::ViitorCloud.KmaxPresentation.PresentationTuning
+  entries:
+  - title: Human Body
+    hasPopOut: 0
+    popOut: 0
+    savedScale: 1
+    scale: 1.09
+  - title: Heart
+    hasPopOut: 0
+    popOut: 0
+    savedScale: 1
+    scale: 1.83
+  - title: Brain
+    hasPopOut: 0
+    popOut: 0
+    savedScale: 1
+    scale: 1.29
+  - title: Ear
+    hasPopOut: 0
+    popOut: 0
+    savedScale: 1
+    scale: 1.54
+  - title: Eye
+    hasPopOut: 0
+    popOut: 0
+    savedScale: 1
+    scale: 2
+  - title: Breathing
+    hasPopOut: 0
+    popOut: 0
+    savedScale: 1
+    scale: 0.91
+  - title: Skull
+    hasPopOut: 0
+    popOut: 0
+    savedScale: 1
+    scale: 1.33
+  - title: Organs
+    hasPopOut: 0
+    popOut: 0
+    savedScale: 1
+    scale: 1.26
+  - title: Body Scan
+    hasPopOut: 0
+    popOut: 0
+    savedScale: 1
+    scale: 1.24
+  - title: Inline-Four Engine
+    hasPopOut: 0
+    popOut: 0
+    savedScale: 1
+    scale: 2.19
+  - title: Pontiac V8 Engine
+    hasPopOut: 0
+    popOut: 0
+    savedScale: 1
+    scale: 2.19
+  - title: Volvo S90
+    hasPopOut: 0
+    popOut: 0
+    savedScale: 1
+    scale: 2.85
+  - title: Volvo C40 Recharge
+    hasPopOut: 0
+    popOut: 0
+    savedScale: 1
+    scale: 2.91
+  - title: Ford Mustang GT
+    hasPopOut: 0
+    popOut: 0
+    savedScale: 1
+    scale: 2.91
+  - title: LM358 Fader
+    hasPopOut: 0
+    popOut: 0
+    savedScale: 1
+    scale: 2
+  - title: Oslo Armchair
+    hasPopOut: 0
+    popOut: 0
+    savedScale: 1
+    scale: 1.79
+  - title: Nordic Bed
+    hasPopOut: 0
+    popOut: 0
+    savedScale: 1
+    scale: 1.91
+  - title: Savoy Dining Table
+    hasPopOut: 0
+    popOut: 0
+    savedScale: 1
+    scale: 1.7
+  - title: Halo Coffee Table
+    hasPopOut: 0
+    popOut: 0
+    savedScale: 1
+    scale: 1.68
+  - title: Vista TV Unit
+    hasPopOut: 0
+    popOut: 0
+    savedScale: 1
+    scale: 1.62
+  - title: Atlas Wardrobe
+    hasPopOut: 0
+    popOut: 0
+    savedScale: 1
+    scale: 1.48
+  - title: Biplane, 1909
+    hasPopOut: 0
+    popOut: 0
+    savedScale: 1
+    scale: 3
+  - title: Mona Lisa
+    hasPopOut: 0
+    popOut: 0
+    savedScale: 1
+    scale: 1.03
+  - title: Solar System
+    hasPopOut: 0
+    popOut: 0
+    savedScale: 1
+    scale: 2.4
+  - title: Viviana High Heels
+    hasPopOut: 0
+    popOut: 0
+    savedScale: 1
+    scale: 1.4
+  - title: Giselle Shoes
+    hasPopOut: 0
+    popOut: 0
+    savedScale: 1
+    scale: 1.4
+  - title: Lorenzo Shoes
+    hasPopOut: 0
+    popOut: 0
+    savedScale: 1
+    scale: 1.4

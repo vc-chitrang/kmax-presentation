@@ -4,14 +4,17 @@ using UnityEngine.UI;
 
 namespace ViitorCloud.KmaxPresentation {
     /// <summary>
-    /// Debug aid: Previous / Next buttons and a "index / total" counter so every model can be checked in order, one by one.
-    /// Built at runtime under the presentation UI canvas (world space, 1920 x 1080 reference), so it needs no scene edit.
-    /// Left and Right arrow keys do the same. Turn it off with PresentationDirector.debugBrowse.
+    /// Editor tuning aid: Previous / Next buttons at the bottom centre and an "index / total" counter above them, so every model can be
+    /// checked in order, one by one. Built at runtime under the presentation UI canvas (world space, 1920 x 1080 reference), so it needs
+    /// no scene edit. Left and Right arrow keys do the same. Turn it on with PresentationDirector.debugBrowse; a player build never shows
+    /// it (the director switches browsing off outside the Editor).
     /// </summary>
     public sealed class PresentationDebugBrowser : MonoBehaviour {
         private const float ButtonWidth = 150.0f;
         private const float ButtonHeight = 42.0f;
         private const float Margin = 32.0f;
+        private const float ButtonGap = 12.0f;
+        private const float CounterGap = 12.0f;
 
         private PresentationDirector director;
         private TMP_Text counterText;
@@ -21,9 +24,12 @@ namespace ViitorCloud.KmaxPresentation {
             RectTransform root = canvas.GetComponent<RectTransform>();
             EnableClicks(canvas, eventCamera);
 
-            CreateButton(root, "DebugPrevious", "Previous", new Vector2(0.0f, 0.0f), new Vector2(Margin, Margin), fontSource, OnPrevious);
-            CreateButton(root, "DebugNext", "Next", new Vector2(1.0f, 0.0f), new Vector2(-Margin, Margin), fontSource, OnNext);
-            counterText = CreateLabel(root, "DebugCounter", new Vector2(0.5f, 1.0f), new Vector2(0.0f, -Margin * 3.0f), fontSource);
+            // Bottom centre, side by side, with the counter just above them (owner: check each model's size by hand).
+            Vector2 bottomCentre = new Vector2(0.5f, 0.0f);
+            float offset = ButtonWidth * 0.5f + ButtonGap * 0.5f;
+            CreateButton(root, "DebugPrevious", "Previous", bottomCentre, new Vector2(-offset, Margin), fontSource, OnPrevious);
+            CreateButton(root, "DebugNext", "Next", bottomCentre, new Vector2(offset, Margin), fontSource, OnNext);
+            counterText = CreateLabel(root, "DebugCounter", bottomCentre, new Vector2(0.0f, Margin + ButtonHeight + CounterGap), fontSource);
             Refresh();
         }
 
@@ -33,7 +39,7 @@ namespace ViitorCloud.KmaxPresentation {
             }
             PresentationItem item = director.GetItem(director.BrowseIndex);
             string title = item != null ? item.title : string.Empty;
-            counterText.text = director.BrowseIndex + " / " + director.ItemCount + "   " + title;
+            counterText.text = (director.BrowseIndex + 1) + " / " + director.ItemCount + "   " + title;
         }
 
         private void Update() {

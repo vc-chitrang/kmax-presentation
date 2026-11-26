@@ -20,11 +20,11 @@ RenderSettings:
   m_FogDensity: 0.01
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
-  m_AmbientSkyColor: {r: 0.14, g: 0.16, b: 0.2, a: 1}
-  m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
-  m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
+  m_AmbientSkyColor: {r: 0.58, g: 0.62, b: 0.7, a: 1}
+  m_AmbientEquatorColor: {r: 0.44, g: 0.47, b: 0.54, a: 1}
+  m_AmbientGroundColor: {r: 0.24, g: 0.26, b: 0.31, a: 1}
   m_AmbientIntensity: 1
-  m_AmbientMode: 3
+  m_AmbientMode: 1
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
   m_SkyboxMaterial: {fileID: 0}
   m_HaloStrength: 0.5
@@ -32,11 +32,11 @@ RenderSettings:
   m_FlareFadeSpeed: 3
   m_HaloTexture: {fileID: 0}
   m_SpotCookie: {fileID: 10001, guid: 0000000000000000e000000000000000, type: 0}
-  m_DefaultReflectionMode: 0
+  m_DefaultReflectionMode: 1
   m_DefaultReflectionResolution: 128
   m_ReflectionBounces: 1
   m_ReflectionIntensity: 1
-  m_CustomReflection: {fileID: 0}
+  m_CustomReflection: {fileID: 8900000, guid: a5e538c70908373469441e7836e07751, type: 2}
   m_Sun: {fileID: 0}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
@@ -119,7 +119,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &75452700
+--- !u!1 &71641769
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -127,68 +127,89 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 75452703}
-  - component: {fileID: 75452702}
-  - component: {fileID: 75452704}
+  - component: {fileID: 71641773}
+  - component: {fileID: 71641772}
+  - component: {fileID: 71641771}
+  - component: {fileID: 71641770}
   m_Layer: 0
-  m_Name: EventSystem
+  m_Name: Interface
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &75452702
+--- !u!114 &71641770
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 75452700}
+  m_GameObject: {fileID: 71641769}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
+  m_Script: {fileID: 11500000, guid: 4694ef1d15776904da78b6b22b9d3632, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.EventSystems.EventSystem
-  m_FirstSelected: {fileID: 0}
-  m_sendNavigationEvents: 1
-  m_DragThreshold: 10
---- !u!4 &75452703
-Transform:
+  m_EditorClassIdentifier: KmaxDisplay::ViitorCloud.KmaxDisplay.UiAlwaysOnTop
+  renderQueue: 4000
+  reapplyOnEnable: 1
+--- !u!114 &71641771
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 75452700}
-  serializedVersion: 2
+  m_GameObject: {fileID: 71641769}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b822daa524cc74c44876448490061143, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: KmaxXR.Core::KmaxXR.UIScaler
+  resolution: {x: 1920, y: 1080}
+  matchWidthOrHeight: 0
+  syncAlways: 1
+--- !u!223 &71641772
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 71641769}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 2
+  m_Camera: {fileID: 547090771}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 0
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
+  m_AdditionalShaderChannelsFlag: 0
+  m_UpdateRectTransformForStandalone: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 100
+  m_TargetDisplay: 0
+--- !u!224 &71641773
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 71641769}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.0003113159, y: 0.0003113159, z: 0.0003113159}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1020109322}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &75452704
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 75452700}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 35b6d5155d4571e4b8c8c25f57e71eb5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Kmax.InputModule::KmaxXR.KmaxInputModule
-  m_SendPointerHoverToParent: 1
-  m_HorizontalAxis: Horizontal
-  m_VerticalAxis: Vertical
-  m_SubmitButton: Submit
-  m_CancelButton: Cancel
-  m_InputActionsPerSecond: 10
-  m_RepeatDelay: 0.5
-  m_ForceModuleActive: 0
-  mouseOverride: 1
-  stylusDragThreshold: 10
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 1920, y: 1080}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &139657062
 GameObject:
   m_ObjectHideFlags: 0
@@ -231,8 +252,8 @@ Light:
   m_Enabled: 1
   serializedVersion: 12
   m_Type: 1
-  m_Color: {r: 1, g: 0.96, b: 0.9, a: 1}
-  m_Intensity: 1.15
+  m_Color: {r: 1, g: 0.98, b: 0.94, a: 1}
+  m_Intensity: 1.1
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -242,8 +263,8 @@ Light:
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
-    m_Bias: 0.05
-    m_NormalBias: 0.4
+    m_Bias: 0.04
+    m_NormalBias: 0.35
     m_NearPlane: 0.2
     m_CullingMatrixOverride:
       e00: 1
@@ -412,6 +433,10 @@ PrefabInstance:
       propertyPath: m_BackGroundColor.r
       value: 0.02
       objectReference: {fileID: 0}
+    - target: {fileID: 8217852261986519547, guid: 61f20e570d0ae87478702a9190aa211c, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8217852262036510243, guid: 61f20e570d0ae87478702a9190aa211c, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -534,9 +559,6 @@ PrefabInstance:
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 8217852263548028801, guid: 61f20e570d0ae87478702a9190aa211c, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1630140496}
-    - targetCorrespondingSourceObject: {fileID: 8217852263548028801, guid: 61f20e570d0ae87478702a9190aa211c, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 139657063}
     - targetCorrespondingSourceObject: {fileID: 8217852263548028801, guid: 61f20e570d0ae87478702a9190aa211c, type: 3}
       insertIndex: -1
@@ -547,10 +569,16 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8217852263548028801, guid: 61f20e570d0ae87478702a9190aa211c, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1302448159}
+    - targetCorrespondingSourceObject: {fileID: 8217852263548028801, guid: 61f20e570d0ae87478702a9190aa211c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1347420792}
     - targetCorrespondingSourceObject: {fileID: 4235564022211998405, guid: 61f20e570d0ae87478702a9190aa211c, type: 3}
       insertIndex: -1
       addedObject: {fileID: 357710747}
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8217852263548028802, guid: 61f20e570d0ae87478702a9190aa211c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 547090778}
     - targetCorrespondingSourceObject: {fileID: 7279628216147538439, guid: 61f20e570d0ae87478702a9190aa211c, type: 3}
       insertIndex: -1
       addedObject: {fileID: 547090777}
@@ -565,17 +593,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8217852263548028801, guid: 61f20e570d0ae87478702a9190aa211c, type: 3}
   m_PrefabInstance: {fileID: 547090770}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &547090773 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3575734869165115226, guid: 61f20e570d0ae87478702a9190aa211c, type: 3}
+--- !u!1 &547090773 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8217852263548028802, guid: 61f20e570d0ae87478702a9190aa211c, type: 3}
   m_PrefabInstance: {fileID: 547090770}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9dd79ee8948e2a240b0de49b6ef4d3c7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &547090774 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4235564022211998405, guid: 61f20e570d0ae87478702a9190aa211c, type: 3}
@@ -628,6 +650,25 @@ MonoBehaviour:
   hitVibrationStrength: 8
   hitVibrationDuration: 0.015
   minVibrationInterval: 0.25
+--- !u!114 &547090778
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 547090773}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 12a251538b9aec243b09821b1ee02b1d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: KmaxDisplay::ViitorCloud.KmaxDisplay.StereoPostProcessing
+  cameraRoot: {fileID: 547090772}
+  enablePostProcessing: 1
+  allowHdr: 1
+  volumeLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  recheckInterval: 1
 --- !u!1 &579518640
 GameObject:
   m_ObjectHideFlags: 0
@@ -670,8 +711,8 @@ Light:
   m_Enabled: 1
   serializedVersion: 12
   m_Type: 1
-  m_Color: {r: 0.6, g: 0.75, b: 1, a: 1}
-  m_Intensity: 0.7
+  m_Color: {r: 0.88, g: 0.92, b: 0.98, a: 1}
+  m_Intensity: 0.8
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -725,143 +766,6 @@ Light:
   m_LightUnit: 1
   m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
---- !u!1 &590912456
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 590912457}
-  - component: {fileID: 590912459}
-  - component: {fileID: 590912458}
-  m_Layer: 0
-  m_Name: Title
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &590912457
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 590912456}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1053122560}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 46}
-  m_Pivot: {x: 0, y: 1}
---- !u!114 &590912458
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 590912456}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_text: 
-  m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_fontSharedMaterials: []
-  m_fontMaterial: {fileID: 0}
-  m_fontMaterials: []
-  m_fontColor32:
-    serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
-  m_enableVertexGradient: 0
-  m_colorMode: 3
-  m_fontColorGradient:
-    topLeft: {r: 1, g: 1, b: 1, a: 1}
-    topRight: {r: 1, g: 1, b: 1, a: 1}
-    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
-    bottomRight: {r: 1, g: 1, b: 1, a: 1}
-  m_fontColorGradientPreset: {fileID: 0}
-  m_spriteAsset: {fileID: 0}
-  m_tintAllSprites: 0
-  m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
-  m_overrideHtmlColors: 0
-  m_faceColor:
-    serializedVersion: 2
-    rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
-  m_fontWeight: 400
-  m_enableAutoSizing: 0
-  m_fontSizeMin: 18
-  m_fontSizeMax: 72
-  m_fontStyle: 1
-  m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
-  m_textAlignment: 65535
-  m_characterSpacing: 0
-  m_characterHorizontalScale: 1
-  m_wordSpacing: 0
-  m_lineSpacing: 0
-  m_lineSpacingMax: 0
-  m_paragraphSpacing: 0
-  m_charWidthMaxAdj: 0
-  m_TextWrappingMode: 0
-  m_wordWrappingRatios: 0.4
-  m_overflowMode: 1
-  m_linkedTextComponent: {fileID: 0}
-  parentLinkedComponent: {fileID: 0}
-  m_enableKerning: 0
-  m_ActiveFontFeatures: 6e72656b
-  m_enableExtraPadding: 0
-  checkPaddingRequired: 0
-  m_isRichText: 1
-  m_EmojiFallbackSupport: 1
-  m_parseCtrlCharacters: 1
-  m_isOrthographic: 1
-  m_isCullingEnabled: 0
-  m_horizontalMapping: 0
-  m_verticalMapping: 0
-  m_uvLineOffset: 0
-  m_geometrySortingOrder: 0
-  m_IsTextObjectScaleStatic: 0
-  m_VertexBufferAutoSizeReduction: 0
-  m_useMaxVisibleDescender: 1
-  m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
-  m_isUsingLegacyAnimationComponent: 0
-  m_isVolumetricText: 0
-  m_hasFontAssetChanged: 0
-  m_baseMaterial: {fileID: 0}
-  m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!222 &590912459
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 590912456}
-  m_CullTransparentMesh: 1
 --- !u!1 &610738416
 GameObject:
   m_ObjectHideFlags: 0
@@ -1229,8 +1133,8 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.0036
-      minScalar: 0.0018
+      scalar: 0.0036001597
+      minScalar: 0.0018000798
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -1614,7 +1518,7 @@ ParticleSystem:
     donutRadius: 0.2
     m_Position: {x: 0, y: 0, z: 0}
     m_Rotation: {x: 0, y: 0, z: 0}
-    m_Scale: {x: 0.8, y: 0.46, z: 0.12}
+    m_Scale: {x: 0.8000355, y: 0.4600204, z: 0.12}
     placementMode: 0
     m_MeshMaterialIndex: 0
     m_MeshNormalOffset: 0
@@ -5746,6 +5650,7 @@ MonoBehaviour:
     swayDegrees: 32
     pulse: 0
     anatomyTopic: body
+    scale: 1
   - title: Heart
     subtitle: "Biology  \u2022  The body's pump"
     description: The heart pushes blood around the body, beating about once every
@@ -5762,6 +5667,7 @@ MonoBehaviour:
     swayDegrees: 32
     pulse: 0
     anatomyTopic: heart
+    scale: 1
   - title: Brain
     subtitle: "Biology  \u2022  Command centre"
     description: The brain controls movement, memory and thought through billions
@@ -5778,6 +5684,7 @@ MonoBehaviour:
     swayDegrees: 32
     pulse: 1
     anatomyTopic: brain
+    scale: 1
   - title: Ear
     subtitle: "Biology  \u2022  Hearing and balance"
     description: The ear turns sound waves into nerve signals and helps the body
@@ -5794,6 +5701,7 @@ MonoBehaviour:
     swayDegrees: 32
     pulse: 0
     anatomyTopic: ear
+    scale: 1
   - title: Eye
     subtitle: "Biology  \u2022  How we see"
     description: The eye focuses light onto the retina, which sends the picture to
@@ -5810,6 +5718,7 @@ MonoBehaviour:
     swayDegrees: 32
     pulse: 0
     anatomyTopic: eye
+    scale: 1
   - title: Breathing
     subtitle: "Biology  \u2022  Lungs and airways"
     description: Air travels down the windpipe into the lungs, where oxygen passes
@@ -5826,6 +5735,7 @@ MonoBehaviour:
     swayDegrees: 32
     pulse: 0
     anatomyTopic: breathing
+    scale: 1
   - title: Skull
     subtitle: "Biology  \u2022  Head protection"
     description: The skull shields the brain and gives the face its shape; the jaw
@@ -5842,6 +5752,7 @@ MonoBehaviour:
     swayDegrees: 32
     pulse: 0
     anatomyTopic: skull
+    scale: 1
   - title: Organs
     subtitle: "Biology  \u2022  Inside the torso"
     description: The major organs of the torso, shown in their natural position and
@@ -5858,6 +5769,7 @@ MonoBehaviour:
     swayDegrees: 32
     pulse: 0
     anatomyTopic: organs
+    scale: 1
   - title: Body Scan
     subtitle: "Biology  \u2022  Layer by layer"
     description: A scan-style view of the body that peels back one layer after another.
@@ -5873,6 +5785,7 @@ MonoBehaviour:
     swayDegrees: 32
     pulse: 0
     anatomyTopic: scan
+    scale: 1
   - title: Inline-Four Engine
     subtitle: "Engineering  \u2022  Running engine"
     description: Four cylinders fire in turn, driving the crankshaft that powers
@@ -5889,6 +5802,7 @@ MonoBehaviour:
     swayDegrees: 32
     pulse: 0
     anatomyTopic: 
+    scale: 1
   - title: Pontiac V8 Engine
     subtitle: "Engineering  \u2022  Classic American V8"
     description: A classic V8 engine, shown assembled and then pulled apart part
@@ -5905,6 +5819,7 @@ MonoBehaviour:
     swayDegrees: 32
     pulse: 0
     anatomyTopic: 
+    scale: 1
   - title: Volvo S90
     subtitle: "Automobile  \u2022  Luxury saloon"
     description: A Scandinavian luxury saloon, modelled in detail inside and out.
@@ -5920,6 +5835,7 @@ MonoBehaviour:
     swayDegrees: 32
     pulse: 0
     anatomyTopic: 
+    scale: 1
   - title: Volvo C40 Recharge
     subtitle: "Automobile  \u2022  Electric crossover"
     description: An all-electric compact crossover with a sloping roofline.
@@ -5935,6 +5851,7 @@ MonoBehaviour:
     swayDegrees: 32
     pulse: 0
     anatomyTopic: 
+    scale: 1
   - title: Ford Mustang GT
     subtitle: "Automobile  \u2022  American muscle"
     description: The Mustang GT, a V8 coupe and long-standing American performance
@@ -5951,22 +5868,7 @@ MonoBehaviour:
     swayDegrees: 32
     pulse: 0
     anatomyTopic: 
-  - title: "Lamborghini Murci\xE9lago"
-    subtitle: "Automobile  \u2022  Italian supercar"
-    description: A mid-engine V12 Italian supercar with all-wheel drive, launched
-      in 2001 as the successor to the Diablo.
-    shortDescription: A V12 Italian supercar
-    group: Automobile
-    prefab: {fileID: 5266254331873045699, guid: c5ba6b8b170a6834082014f6abc00073, type: 3}
-    show: 0
-    fitSize: 0.64
-    baseEuler: {x: 0, y: 0, z: 0}
-    tiltDegrees: 0
-    spinDegreesPerSecond: 20
-    sway: 0
-    swayDegrees: 32
-    pulse: 0
-    anatomyTopic: 
+    scale: 1
   - title: LM358 Fader
     subtitle: "Electronics  \u2022  Smooth dimming"
     description: An LM358 op-amp circuit that fades an LED up and down smoothly.
@@ -5976,12 +5878,13 @@ MonoBehaviour:
     show: 0
     fitSize: 0.64
     baseEuler: {x: 45, y: 180, z: 0}
-    tiltDegrees: 0
-    spinDegreesPerSecond: 0
-    sway: 0
-    swayDegrees: 32
+    tiltDegrees: -20
+    spinDegreesPerSecond: 26
+    sway: 1
+    swayDegrees: 38
     pulse: 0
     anatomyTopic: 
+    scale: 1
   - title: Oslo Armchair
     subtitle: "Retail  \u2022  Seating"
     description: An armchair from the range, turned slowly so every angle can be
@@ -5998,70 +5901,7 @@ MonoBehaviour:
     swayDegrees: 38
     pulse: 0
     anatomyTopic: 
-  - title: Milan Armchair
-    subtitle: "Retail  \u2022  Seating"
-    description: An armchair from the range, turned slowly so every angle can be
-      seen.
-    shortDescription: An armchair from the range
-    group: Retail
-    prefab: {fileID: 5366006972245735362, guid: 4fc58925d97f5f74494b9b7b9c9d4683, type: 3}
-    show: 0
-    fitSize: 0.64
-    baseEuler: {x: 0, y: 0, z: 0}
-    tiltDegrees: -20
-    spinDegreesPerSecond: 26
-    sway: 1
-    swayDegrees: 38
-    pulse: 0
-    anatomyTopic: 
-  - title: Kyoto Armchair
-    subtitle: "Retail  \u2022  Seating"
-    description: An armchair from the range, turned slowly so every angle can be
-      seen.
-    shortDescription: An armchair from the range
-    group: Retail
-    prefab: {fileID: 3097893357975766214, guid: 53115ae5d052dde489faa363d401d994, type: 3}
-    show: 0
-    fitSize: 0.64
-    baseEuler: {x: 0, y: 0, z: 0}
-    tiltDegrees: -20
-    spinDegreesPerSecond: 26
-    sway: 1
-    swayDegrees: 38
-    pulse: 0
-    anatomyTopic: 
-  - title: Aspen Armchair
-    subtitle: "Retail  \u2022  Seating"
-    description: An armchair from the range, turned slowly so every angle can be
-      seen.
-    shortDescription: An armchair from the range
-    group: Retail
-    prefab: {fileID: 4404216725973830843, guid: e71be0b08d5862b47a4eb4a79f84c674, type: 3}
-    show: 0
-    fitSize: 0.64
-    baseEuler: {x: 0, y: 0, z: 0}
-    tiltDegrees: -20
-    spinDegreesPerSecond: 26
-    sway: 1
-    swayDegrees: 38
-    pulse: 0
-    anatomyTopic: 
-  - title: Lisbon Armchair
-    subtitle: "Retail  \u2022  Seating"
-    description: An armchair from the range, turned slowly so every angle can be
-      seen.
-    shortDescription: An armchair from the range
-    group: Retail
-    prefab: {fileID: 6330381595725602978, guid: 674d035c83a94534b9deb0df44ff879f, type: 3}
-    show: 0
-    fitSize: 0.64
-    baseEuler: {x: 0, y: 0, z: 0}
-    tiltDegrees: -20
-    spinDegreesPerSecond: 26
-    sway: 1
-    swayDegrees: 38
-    pulse: 0
-    anatomyTopic: 
+    scale: 1
   - title: Nordic Bed
     subtitle: "Retail  \u2022  Bedroom"
     description: A bed from the bedroom range, turned slowly so every side can be
@@ -6078,54 +5918,7 @@ MonoBehaviour:
     swayDegrees: 38
     pulse: 0
     anatomyTopic: 
-  - title: Verona Bed
-    subtitle: "Retail  \u2022  Bedroom"
-    description: A bed from the bedroom range, turned slowly so every side can be
-      seen.
-    shortDescription: A bed from the bedroom range
-    group: Retail
-    prefab: {fileID: 8915663104607409341, guid: b4c7504e01330ef478282c81314ecebc, type: 3}
-    show: 0
-    fitSize: 0.64
-    baseEuler: {x: 0, y: 0, z: 0}
-    tiltDegrees: -20
-    spinDegreesPerSecond: 26
-    sway: 1
-    swayDegrees: 38
-    pulse: 0
-    anatomyTopic: 
-  - title: Haven Bed
-    subtitle: "Retail  \u2022  Bedroom"
-    description: A bed from the bedroom range, turned slowly so every side can be
-      seen.
-    shortDescription: A bed from the bedroom range
-    group: Retail
-    prefab: {fileID: 9201711234087341636, guid: a6660b0a5b0f6ae48bbb585106934c32, type: 3}
-    show: 0
-    fitSize: 0.64
-    baseEuler: {x: 0, y: 0, z: 0}
-    tiltDegrees: -20
-    spinDegreesPerSecond: 26
-    sway: 1
-    swayDegrees: 38
-    pulse: 0
-    anatomyTopic: 
-  - title: Cascade Bed
-    subtitle: "Retail  \u2022  Bedroom"
-    description: A bed from the bedroom range, turned slowly so every side can be
-      seen.
-    shortDescription: A bed from the bedroom range
-    group: Retail
-    prefab: {fileID: 3271271327396501814, guid: 66893733abd3fcf4f93132ae27672e01, type: 3}
-    show: 0
-    fitSize: 0.64
-    baseEuler: {x: 0, y: 0, z: 0}
-    tiltDegrees: -20
-    spinDegreesPerSecond: 26
-    sway: 1
-    swayDegrees: 38
-    pulse: 0
-    anatomyTopic: 
+    scale: 1
   - title: Savoy Dining Table
     subtitle: "Retail  \u2022  Dining"
     description: A dining table from the range, turned slowly so every side can be
@@ -6142,54 +5935,7 @@ MonoBehaviour:
     swayDegrees: 32
     pulse: 0
     anatomyTopic: 
-  - title: Arden Dining Table
-    subtitle: "Retail  \u2022  Dining"
-    description: A dining table from the range, turned slowly so every side can be
-      seen.
-    shortDescription: A dining table from the range
-    group: Retail
-    prefab: {fileID: 8266147294788468035, guid: 5c1fd8b7d1b7936478d45d5590c2317c, type: 3}
-    show: 0
-    fitSize: 0.55
-    baseEuler: {x: 0, y: 0, z: 0}
-    tiltDegrees: -20
-    spinDegreesPerSecond: 26
-    sway: 0
-    swayDegrees: 32
-    pulse: 0
-    anatomyTopic: 
-  - title: Marlow Dining Table
-    subtitle: "Retail  \u2022  Dining"
-    description: A dining table from the range, turned slowly so every side can be
-      seen.
-    shortDescription: A dining table from the range
-    group: Retail
-    prefab: {fileID: 3051564046324384735, guid: 3b17be29b72ec0a43ae428622b5fa7bc, type: 3}
-    show: 0
-    fitSize: 0.55
-    baseEuler: {x: 0, y: 0, z: 0}
-    tiltDegrees: -20
-    spinDegreesPerSecond: 26
-    sway: 0
-    swayDegrees: 32
-    pulse: 0
-    anatomyTopic: 
-  - title: Tuscan Dining Table
-    subtitle: "Retail  \u2022  Dining"
-    description: A dining table from the range, turned slowly so every side can be
-      seen.
-    shortDescription: A dining table from the range
-    group: Retail
-    prefab: {fileID: 7187125979766614940, guid: 0fa9acf6baee5904cbb24ef8aff639d4, type: 3}
-    show: 0
-    fitSize: 0.55
-    baseEuler: {x: 0, y: 0, z: 0}
-    tiltDegrees: -20
-    spinDegreesPerSecond: 26
-    sway: 0
-    swayDegrees: 32
-    pulse: 0
-    anatomyTopic: 
+    scale: 1
   - title: Halo Coffee Table
     subtitle: "Retail  \u2022  Living room"
     description: A coffee table from the range, turned slowly so every side can be
@@ -6206,54 +5952,7 @@ MonoBehaviour:
     swayDegrees: 32
     pulse: 0
     anatomyTopic: 
-  - title: Orbit Coffee Table
-    subtitle: "Retail  \u2022  Living room"
-    description: A coffee table from the range, turned slowly so every side can be
-      seen.
-    shortDescription: A coffee table from the range
-    group: Retail
-    prefab: {fileID: 6065506419784019169, guid: a2e20b5db6ba49a459ff4eb8dced6ad1, type: 3}
-    show: 0
-    fitSize: 0.44
-    baseEuler: {x: 0, y: 0, z: 0}
-    tiltDegrees: -14
-    spinDegreesPerSecond: 26
-    sway: 0
-    swayDegrees: 32
-    pulse: 0
-    anatomyTopic: 
-  - title: Terra Coffee Table
-    subtitle: "Retail  \u2022  Living room"
-    description: A coffee table from the range, turned slowly so every side can be
-      seen.
-    shortDescription: A coffee table from the range
-    group: Retail
-    prefab: {fileID: 6383604884646897389, guid: e64433f544b6c054e9d47152c9a31068, type: 3}
-    show: 0
-    fitSize: 0.51
-    baseEuler: {x: 0, y: 0, z: 0}
-    tiltDegrees: -20
-    spinDegreesPerSecond: 26
-    sway: 0
-    swayDegrees: 32
-    pulse: 0
-    anatomyTopic: 
-  - title: Luna Coffee Table
-    subtitle: "Retail  \u2022  Living room"
-    description: A coffee table from the range, turned slowly so every side can be
-      seen.
-    shortDescription: A coffee table from the range
-    group: Retail
-    prefab: {fileID: 4968774519678217027, guid: 06c51e2dc36be7f44bd47a2991a72802, type: 3}
-    show: 0
-    fitSize: 0.51
-    baseEuler: {x: 0, y: 0, z: 0}
-    tiltDegrees: -20
-    spinDegreesPerSecond: 26
-    sway: 0
-    swayDegrees: 32
-    pulse: 0
-    anatomyTopic: 
+    scale: 1
   - title: Vista TV Unit
     subtitle: "Retail  \u2022  Living room"
     description: A TV unit from the range, shown from the front and both sides.
@@ -6269,36 +5968,7 @@ MonoBehaviour:
     swayDegrees: 36
     pulse: 0
     anatomyTopic: 
-  - title: Echo TV Unit
-    subtitle: "Retail  \u2022  Living room"
-    description: A TV unit from the range, shown from the front and both sides.
-    shortDescription: A TV unit from the range
-    group: Retail
-    prefab: {fileID: 3243189262743131874, guid: ff0fbb9867d39f94687419462d271e40, type: 3}
-    show: 0
-    fitSize: 0.55
-    baseEuler: {x: 0, y: 0, z: 0}
-    tiltDegrees: -20
-    spinDegreesPerSecond: 26
-    sway: 1
-    swayDegrees: 36
-    pulse: 0
-    anatomyTopic: 
-  - title: Aura TV Unit
-    subtitle: "Retail  \u2022  Living room"
-    description: A TV unit from the range, shown from the front and both sides.
-    shortDescription: A TV unit from the range
-    group: Retail
-    prefab: {fileID: 8545006163742327944, guid: 6a2bc05dc567785448c9b4e2768aa110, type: 3}
-    show: 0
-    fitSize: 0.55
-    baseEuler: {x: 0, y: 0, z: 0}
-    tiltDegrees: -20
-    spinDegreesPerSecond: 26
-    sway: 1
-    swayDegrees: 36
-    pulse: 0
-    anatomyTopic: 
+    scale: 1
   - title: Atlas Wardrobe
     subtitle: "Retail  \u2022  Bedroom"
     description: A wardrobe from the range, shown from the front and both sides.
@@ -6314,21 +5984,7 @@ MonoBehaviour:
     swayDegrees: 36
     pulse: 0
     anatomyTopic: 
-  - title: Cedar Wardrobe
-    subtitle: "Retail  \u2022  Bedroom"
-    description: A wardrobe from the range, shown from the front and both sides.
-    shortDescription: A wardrobe from the range
-    group: Retail
-    prefab: {fileID: 8930203407314308619, guid: c516e15ad6ea5ce48b066cc1be7de13b, type: 3}
-    show: 0
-    fitSize: 0.69
-    baseEuler: {x: 0, y: 0, z: 0}
-    tiltDegrees: -20
-    spinDegreesPerSecond: 26
-    sway: 1
-    swayDegrees: 36
-    pulse: 0
-    anatomyTopic: 
+    scale: 1
   - title: Planet Earth
     subtitle: "Education  \u2022  Physics"
     description: Earth turns once every 24 hours, giving us day and night.
@@ -6344,6 +6000,7 @@ MonoBehaviour:
     swayDegrees: 32
     pulse: 0
     anatomyTopic: 
+    scale: 1
   - title: Biplane, 1909
     subtitle: "Education  \u2022  Technology"
     description: Wind streams over the wings of an early biplane; the propeller spins
@@ -6360,6 +6017,7 @@ MonoBehaviour:
     swayDegrees: 32
     pulse: 0
     anatomyTopic: 
+    scale: 1
   - title: Mona Lisa
     subtitle: "Education  \u2022  Arts"
     description: Leonardo da Vinci's portrait, painted in the early 1500s and now
@@ -6376,22 +6034,7 @@ MonoBehaviour:
     swayDegrees: 32
     pulse: 0
     anatomyTopic: 
-  - title: Ethene, C<sub>2</sub>H<sub>4</sub>
-    subtitle: "Education  \u2022  Chemistry"
-    description: 'Two carbon atoms joined by a double bond, each holding two hydrogens:
-      the simplest alkene.'
-    shortDescription: A simple molecule, C2H4
-    group: Education
-    prefab: {fileID: 5447763078938937937, guid: 14f3c1e985a916245a974874cd6cf05a, type: 3}
-    show: 0
-    fitSize: 0.64
-    baseEuler: {x: 0, y: 0, z: 0}
-    tiltDegrees: 12
-    spinDegreesPerSecond: 26
-    sway: 0
-    swayDegrees: 32
-    pulse: 1
-    anatomyTopic: 
+    scale: 1
   - title: Solar System
     subtitle: "Education  \u2022  Astronomy"
     description: The Sun and its planets, each travelling its own orbit.
@@ -6401,17 +6044,290 @@ MonoBehaviour:
     show: 3
     fitSize: 0.83
     baseEuler: {x: 0, y: 0, z: 0}
-    tiltDegrees: 38
+    tiltDegrees: -55
     spinDegreesPerSecond: 5
     sway: 0
     swayDegrees: 32
     pulse: 0
     anatomyTopic: 
+    scale: 1
+  - title: Aphrodite Bracelet
+    subtitle: "Jewellery  \u2022  Bracelet"
+    description: A piece from the jewellery collection.
+    shortDescription: From the jewellery collection
+    group: Jewellery
+    prefab: {fileID: 6811546172532472779, guid: 318effb2e7ac9bb42b945513e179ffd4, type: 3}
+    show: 0
+    fitSize: 1
+    baseEuler: {x: 0, y: 0, z: 0}
+    tiltDegrees: 8
+    spinDegreesPerSecond: 26
+    sway: 0
+    swayDegrees: 32
+    pulse: 0
+    anatomyTopic: 
+    scale: 1
+  - title: Celeste Earrings
+    subtitle: "Jewellery  \u2022  Earrings"
+    description: A piece from the jewellery collection.
+    shortDescription: From the jewellery collection
+    group: Jewellery
+    prefab: {fileID: -1729492367943685974, guid: 1c53d33793734604eb2fc53b0bba6d53, type: 3}
+    show: 0
+    fitSize: 1
+    baseEuler: {x: 0, y: 0, z: 0}
+    tiltDegrees: 8
+    spinDegreesPerSecond: 26
+    sway: 0
+    swayDegrees: 32
+    pulse: 0
+    anatomyTopic: 
+    scale: 1
+  - title: Lumiere Earrings
+    subtitle: "Jewellery  \u2022  Earrings"
+    description: A piece from the jewellery collection.
+    shortDescription: From the jewellery collection
+    group: Jewellery
+    prefab: {fileID: 2821013107417303991, guid: 84101f436b0663348a6186fa597b3ed3, type: 3}
+    show: 0
+    fitSize: 1
+    baseEuler: {x: 0, y: 0, z: 0}
+    tiltDegrees: 8
+    spinDegreesPerSecond: 26
+    sway: 0
+    swayDegrees: 32
+    pulse: 0
+    anatomyTopic: 
+    scale: 1
+  - title: Opaline Earrings
+    subtitle: "Jewellery  \u2022  Earrings"
+    description: A piece from the jewellery collection.
+    shortDescription: From the jewellery collection
+    group: Jewellery
+    prefab: {fileID: -4528640846004629713, guid: 104cf0010e1be1343a75f68c077c75dd, type: 3}
+    show: 0
+    fitSize: 1
+    baseEuler: {x: 0, y: 0, z: 0}
+    tiltDegrees: 8
+    spinDegreesPerSecond: 26
+    sway: 0
+    swayDegrees: 32
+    pulse: 0
+    anatomyTopic: 
+    scale: 1
+  - title: Isolde Earrings
+    subtitle: "Jewellery  \u2022  Earrings"
+    description: A piece from the jewellery collection.
+    shortDescription: From the jewellery collection
+    group: Jewellery
+    prefab: {fileID: 1696775900942112906, guid: cb8f34600d0a6cf44a885dce5f7802e3, type: 3}
+    show: 0
+    fitSize: 1
+    baseEuler: {x: 0, y: 0, z: 0}
+    tiltDegrees: 8
+    spinDegreesPerSecond: 26
+    sway: 0
+    swayDegrees: 32
+    pulse: 0
+    anatomyTopic: 
+    scale: 1
+  - title: Cleopatra Necklace
+    subtitle: "Jewellery  \u2022  Necklace"
+    description: A piece from the jewellery collection.
+    shortDescription: From the jewellery collection
+    group: Jewellery
+    prefab: {fileID: 7835041858077562616, guid: 30c2f00a28706d94cb008118648dfaeb, type: 3}
+    show: 0
+    fitSize: 1
+    baseEuler: {x: 0, y: 0, z: 0}
+    tiltDegrees: 8
+    spinDegreesPerSecond: 26
+    sway: 0
+    swayDegrees: 32
+    pulse: 0
+    anatomyTopic: 
+    scale: 1
+  - title: Isadora Necklace
+    subtitle: "Jewellery  \u2022  Necklace"
+    description: A piece from the jewellery collection.
+    shortDescription: From the jewellery collection
+    group: Jewellery
+    prefab: {fileID: -3134342849522418463, guid: 793e925e3db02fe46aea5c8ed50e27ad, type: 3}
+    show: 0
+    fitSize: 1
+    baseEuler: {x: 0, y: 0, z: 0}
+    tiltDegrees: 8
+    spinDegreesPerSecond: 26
+    sway: 0
+    swayDegrees: 32
+    pulse: 0
+    anatomyTopic: 
+    scale: 1
+  - title: Marchesa Necklace
+    subtitle: "Jewellery  \u2022  Necklace"
+    description: A piece from the jewellery collection.
+    shortDescription: From the jewellery collection
+    group: Jewellery
+    prefab: {fileID: 4080555476947986475, guid: 5002b0b9471c41f4ca44c1b76969877b, type: 3}
+    show: 0
+    fitSize: 1
+    baseEuler: {x: 0, y: 0, z: 0}
+    tiltDegrees: 8
+    spinDegreesPerSecond: 26
+    sway: 0
+    swayDegrees: 32
+    pulse: 0
+    anatomyTopic: 
+    scale: 1
+  - title: Aurelia Ring
+    subtitle: "Jewellery  \u2022  Ring"
+    description: A piece from the jewellery collection.
+    shortDescription: From the jewellery collection
+    group: Jewellery
+    prefab: {fileID: -3409985632978768964, guid: 94fc145ca83c50d4b857f187f3d6e170, type: 3}
+    show: 0
+    fitSize: 1
+    baseEuler: {x: -35, y: 0, z: 0}
+    tiltDegrees: 8
+    spinDegreesPerSecond: 26
+    sway: 0
+    swayDegrees: 32
+    pulse: 0
+    anatomyTopic: 
+    scale: 1
+  - title: Seraphine Ring
+    subtitle: "Jewellery  \u2022  Ring"
+    description: A piece from the jewellery collection.
+    shortDescription: From the jewellery collection
+    group: Jewellery
+    prefab: {fileID: -1638751527433604880, guid: c4d2bda9630cefb4fb59bc5f689df2dc, type: 3}
+    show: 0
+    fitSize: 1
+    baseEuler: {x: -35, y: 0, z: 180}
+    tiltDegrees: 8
+    spinDegreesPerSecond: 26
+    sway: 0
+    swayDegrees: 32
+    pulse: 0
+    anatomyTopic: 
+    scale: 1
+  - title: Valentina Ring
+    subtitle: "Jewellery  \u2022  Ring"
+    description: A piece from the jewellery collection.
+    shortDescription: From the jewellery collection
+    group: Jewellery
+    prefab: {fileID: -3817527829379767737, guid: 7c19da2ade40a5449a7e606d2e2b69ae, type: 3}
+    show: 0
+    fitSize: 1
+    baseEuler: {x: -35, y: 0, z: 0}
+    tiltDegrees: 8
+    spinDegreesPerSecond: 26
+    sway: 0
+    swayDegrees: 32
+    pulse: 0
+    anatomyTopic: 
+    scale: 1
+  - title: Duchess Ring
+    subtitle: "Jewellery  \u2022  Ring"
+    description: A piece from the jewellery collection.
+    shortDescription: From the jewellery collection
+    group: Jewellery
+    prefab: {fileID: -2318060588227306660, guid: 489a5acc58e30a749a4987664300e3a1, type: 3}
+    show: 0
+    fitSize: 1
+    baseEuler: {x: -55, y: 0, z: 0}
+    tiltDegrees: 8
+    spinDegreesPerSecond: 26
+    sway: 0
+    swayDegrees: 32
+    pulse: 0
+    anatomyTopic: 
+    scale: 1
+  - title: Empress Ring
+    subtitle: "Jewellery  \u2022  Ring"
+    description: A piece from the jewellery collection.
+    shortDescription: From the jewellery collection
+    group: Jewellery
+    prefab: {fileID: -8122867985044561816, guid: e3e5fc6727fc4534686d79db715e9ce8, type: 3}
+    show: 0
+    fitSize: 1
+    baseEuler: {x: -55, y: 0, z: 0}
+    tiltDegrees: 8
+    spinDegreesPerSecond: 26
+    sway: 0
+    swayDegrees: 32
+    pulse: 0
+    anatomyTopic: 
+    scale: 1
+  - title: Viviana High Heels
+    subtitle: "Fashion  \u2022  Footwear"
+    description: A pair of high-heeled shoes.
+    shortDescription: Footwear
+    group: Fashion
+    prefab: {fileID: 919132149155446097, guid: e17a9afe80a2d104cb81632937a30d88, type: 3}
+    show: 0
+    fitSize: 1
+    baseEuler: {x: 30, y: 0, z: 0}
+    tiltDegrees: 8
+    spinDegreesPerSecond: 26
+    sway: 0
+    swayDegrees: 32
+    pulse: 0
+    anatomyTopic: 
+    scale: 1
+  - title: Giselle Shoes
+    subtitle: "Fashion  \u2022  Footwear"
+    description: A pair of women's shoes.
+    shortDescription: Footwear
+    group: Fashion
+    prefab: {fileID: 919132149155446097, guid: 5a887b7f67245e147b59872a553f4be5, type: 3}
+    show: 0
+    fitSize: 1
+    baseEuler: {x: 30, y: 0, z: 0}
+    tiltDegrees: 8
+    spinDegreesPerSecond: 26
+    sway: 0
+    swayDegrees: 32
+    pulse: 0
+    anatomyTopic: 
+    scale: 1
+  - title: Lorenzo Shoes
+    subtitle: "Fashion  \u2022  Footwear"
+    description: A pair of men's shoes.
+    shortDescription: Footwear
+    group: Fashion
+    prefab: {fileID: 919132149155446097, guid: 92430e23b7c331b4a8fec4bc851e7d2d, type: 3}
+    show: 0
+    fitSize: 1
+    baseEuler: {x: 30, y: 0, z: 0}
+    tiltDegrees: 8
+    spinDegreesPerSecond: 26
+    sway: 0
+    swayDegrees: 32
+    pulse: 0
+    anatomyTopic: 
+    scale: 1
+  - title: Eloise Pendant
+    subtitle: "Jewellery  \u2022  Pendant"
+    description: A pendant from the jewellery collection.
+    shortDescription: From the jewellery collection
+    group: Jewellery
+    prefab: {fileID: 919132149155446097, guid: 92011d9958cc3c14a8ecfa3f8bb9daec, type: 3}
+    show: 0
+    fitSize: 1
+    baseEuler: {x: -35, y: 0, z: 0}
+    tiltDegrees: 8
+    spinDegreesPerSecond: 26
+    sway: 0
+    swayDegrees: 32
+    pulse: 0
+    anatomyTopic: 
+    scale: 1
   carouselRoot: {fileID: 1829238433}
-  titleText: {fileID: 590912458}
+  titleText: {fileID: 978064036}
   subtitleText: {fileID: 0}
-  descriptionText: {fileID: 1940151379}
-  panelGroup: {fileID: 1053122561}
+  descriptionText: {fileID: 1572323269}
+  panelGroup: {fileID: 1020109323}
   floorShadowMaterial: {fileID: 0}
   showFloorShadow: 0
   explodeSpread: 0.28
@@ -6427,6 +6343,7 @@ MonoBehaviour:
   debugBrowse: 0
   perItemLighting: 0
   anchorStageToOrigin: 1
+  tuning: {fileID: 11400000, guid: b2f954674fd439d40a066a00c05ed181, type: 2}
 --- !u!4 &786513411
 Transform:
   m_ObjectHideFlags: 0
@@ -6464,12 +6381,15 @@ MonoBehaviour:
   zoomSmoothTime: 0.16
   homeYaw: 0
   homePitch: 14
-  nearestMargin: 0.02
+  nearestMargin: 0.01
   farMargin: 0.015
   windowWidthFill: 0.9
   windowHeightFill: 0.8
   maxPopOut: 0.11
   placeSeconds: 0.24
+  tuning: {fileID: 11400000, guid: b2f954674fd439d40a066a00c05ed181, type: 2}
+  maxScale: 1.6
+  minScale: 0.3
 --- !u!114 &786513413
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6484,7 +6404,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: KmaxDisplay::ViitorCloud.KmaxDisplay.ComfortDepthKeeper
   margin: 0.015
   smoothTime: 0.15
---- !u!1 &1053122559
+--- !u!1 &978064034
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -6492,8 +6412,145 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1053122560}
-  - component: {fileID: 1053122561}
+  - component: {fileID: 978064035}
+  - component: {fileID: 978064037}
+  - component: {fileID: 978064036}
+  m_Layer: 0
+  m_Name: Title
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &978064035
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 978064034}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1020109322}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 46}
+  m_Pivot: {x: 0, y: 1}
+--- !u!114 &978064036
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 978064034}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_text: 
+  m_isRightToLeft: 0
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontSharedMaterials: []
+  m_fontMaterial: {fileID: 0}
+  m_fontMaterials: []
+  m_fontColor32:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+  m_enableVertexGradient: 0
+  m_colorMode: 3
+  m_fontColorGradient:
+    topLeft: {r: 1, g: 1, b: 1, a: 1}
+    topRight: {r: 1, g: 1, b: 1, a: 1}
+    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
+    bottomRight: {r: 1, g: 1, b: 1, a: 1}
+  m_fontColorGradientPreset: {fileID: 0}
+  m_spriteAsset: {fileID: 0}
+  m_tintAllSprites: 0
+  m_StyleSheet: {fileID: 0}
+  m_TextStyleHashCode: -1183493901
+  m_overrideHtmlColors: 0
+  m_faceColor:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontSize: 36
+  m_fontSizeBase: 36
+  m_fontWeight: 400
+  m_enableAutoSizing: 0
+  m_fontSizeMin: 18
+  m_fontSizeMax: 72
+  m_fontStyle: 1
+  m_HorizontalAlignment: 1
+  m_VerticalAlignment: 256
+  m_textAlignment: 65535
+  m_characterSpacing: 0
+  m_characterHorizontalScale: 1
+  m_wordSpacing: 0
+  m_lineSpacing: 0
+  m_lineSpacingMax: 0
+  m_paragraphSpacing: 0
+  m_charWidthMaxAdj: 0
+  m_TextWrappingMode: 0
+  m_wordWrappingRatios: 0.4
+  m_overflowMode: 1
+  m_linkedTextComponent: {fileID: 0}
+  parentLinkedComponent: {fileID: 0}
+  m_enableKerning: 0
+  m_ActiveFontFeatures: 6e72656b
+  m_enableExtraPadding: 0
+  checkPaddingRequired: 0
+  m_isRichText: 1
+  m_EmojiFallbackSupport: 1
+  m_parseCtrlCharacters: 1
+  m_isOrthographic: 1
+  m_isCullingEnabled: 0
+  m_horizontalMapping: 0
+  m_verticalMapping: 0
+  m_uvLineOffset: 0
+  m_geometrySortingOrder: 0
+  m_IsTextObjectScaleStatic: 0
+  m_VertexBufferAutoSizeReduction: 0
+  m_useMaxVisibleDescender: 1
+  m_pageToDisplay: 1
+  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_isUsingLegacyAnimationComponent: 0
+  m_isVolumetricText: 0
+  m_hasFontAssetChanged: 0
+  m_baseMaterial: {fileID: 0}
+  m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!222 &978064037
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 978064034}
+  m_CullTransparentMesh: 1
+--- !u!1 &1020109321
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1020109322}
+  - component: {fileID: 1020109323}
   m_Layer: 0
   m_Name: Header
   m_TagString: Untagged
@@ -6501,34 +6558,34 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!224 &1053122560
+--- !u!224 &1020109322
 RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1053122559}
+  m_GameObject: {fileID: 1020109321}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 590912457}
-  - {fileID: 1940151378}
-  m_Father: {fileID: 2079480759}
+  - {fileID: 978064035}
+  - {fileID: 1572323268}
+  m_Father: {fileID: 71641773}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 32, y: -22}
   m_SizeDelta: {x: 700, y: 80}
   m_Pivot: {x: 0, y: 1}
---- !u!225 &1053122561
+--- !u!225 &1020109323
 CanvasGroup:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1053122559}
+  m_GameObject: {fileID: 1020109321}
   m_Enabled: 1
   m_Alpha: 0
   m_Interactable: 0
@@ -6901,8 +6958,8 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.0026
-      minScalar: 0.0012
+      scalar: 0.0026001153
+      minScalar: 0.0012000533
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -7283,7 +7340,7 @@ ParticleSystem:
     length: 5
     boxThickness: {x: 0, y: 0, z: 0}
     radiusThickness: 1
-    donutRadius: 0.05
+    donutRadius: 0.050002217
     m_Position: {x: 0, y: 0, z: 0}
     m_Rotation: {x: 0, y: 0, z: 0}
     m_Scale: {x: 1, y: 0.55, z: 1}
@@ -7365,7 +7422,7 @@ ParticleSystem:
     sphericalDirectionAmount: 0
     randomPositionAmount: 0
     radius:
-      value: 0.24
+      value: 0.24001063
       mode: 0
       spread: 0
       speed:
@@ -11404,7 +11461,7 @@ Transform:
   - {fileID: 1950961246}
   m_Father: {fileID: 547090772}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1587860281
+--- !u!1 &1347420791
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -11412,155 +11469,96 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1587860284}
-  - component: {fileID: 1587860283}
-  - component: {fileID: 1587860282}
+  - component: {fileID: 1347420792}
+  - component: {fileID: 1347420793}
   m_Layer: 0
-  m_Name: Diagnostics
+  m_Name: Top Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1587860282
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1587860281}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 44ab99675d19ada41acf61d98c14aa3a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: KmaxDisplay::ViitorCloud.KmaxDisplay.StereoVolumeGizmo
-  alwaysShow: 1
-  showPopOut: 1
-  showDepth: 1
-  inspect: {fileID: 0}
---- !u!114 &1587860283
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1587860281}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: df7cb7f304f13024680db5765d011c72, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: KmaxDisplay::ViitorCloud.KmaxDisplay.ComfortOverlay
-  toggleKey: 290
-  visibleOnStart: 0
-  tip: {fileID: 1630140498}
-  inspect: {fileID: 0}
-  auditKey: 291
-  lineWidth: 0.0008
-  screenPlaneColor: {r: 1, g: 1, b: 1, a: 0.9}
-  popOutColor: {r: 1, g: 0.55, b: 0.2, a: 1}
-  depthColor: {r: 0.3, g: 0.75, b: 1, a: 1}
-  strutColor: {r: 0.5, g: 0.5, b: 0.5, a: 0.6}
-  tipInsideColor: {r: 0.3, g: 1, b: 0.5, a: 1}
-  tipOutsideColor: {r: 1, g: 0.2, b: 0.2, a: 1}
---- !u!4 &1587860284
+--- !u!4 &1347420792
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1587860281}
+  m_GameObject: {fileID: 1347420791}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1630140495
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1630140496}
-  - component: {fileID: 1630140498}
-  - component: {fileID: 1630140497}
-  m_Layer: 0
-  m_Name: StylusTip
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1630140496
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1630140495}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0.6946584, y: 0, z: 0, w: 0.7193398}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 547090772}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1630140497
-MonoBehaviour:
+--- !u!108 &1347420793
+Light:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1630140495}
+  m_GameObject: {fileID: 1347420791}
   m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 54fceb9e825ac5e42956e069b63955ac, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: KmaxDisplay::ViitorCloud.KmaxDisplay.StylusHaptics
-  stylus: {fileID: 547090773}
-  minInterval: 0.25
-  tickStrength: 8
-  tickDuration: 0.015
-  grabStrength: 32
-  grabDuration: 0.04
-  releaseStrength: 18
-  releaseDuration: 0.025
-  impactStrength: 60
-  impactDuration: 0.05
-  successStrength: 26
-  successDuration: 0.09
-  errorStrength: 45
-  errorDuration: 0.12
---- !u!114 &1630140498
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1630140495}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9fbc28b928a1a0b4c924f8f23d3325d3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: KmaxDisplay::ViitorCloud.KmaxDisplay.StylusTip
-  stylus: {fileID: 547090773}
-  tipVisual: {fileID: 0}
-  tipOffset: 0
-  lateralOffset: {x: 0, y: 0, z: 0}
-  radius: 0.004
-  layers:
+  serializedVersion: 12
+  m_Type: 1
+  m_Color: {r: 1, g: 0.99, b: 0.96, a: 1}
+  m_Intensity: 0.6
+  m_Range: 10
+  m_SpotAngle: 30
+  m_InnerSpotAngle: 21.80208
+  m_CookieSize2D: {x: 0.5, y: 0.5}
+  m_Shadows:
+    m_Type: 0
+    m_Resolution: -1
+    m_CustomResolution: -1
+    m_Strength: 1
+    m_Bias: 0.05
+    m_NormalBias: 0.4
+    m_NearPlane: 0.2
+    m_CullingMatrixOverride:
+      e00: 1
+      e01: 0
+      e02: 0
+      e03: 0
+      e10: 0
+      e11: 1
+      e12: 0
+      e13: 0
+      e20: 0
+      e21: 0
+      e22: 1
+      e23: 0
+      e30: 0
+      e31: 0
+      e32: 0
+      e33: 1
+    m_UseCullingMatrixOverride: 0
+  m_Cookie: {fileID: 0}
+  m_DrawHalo: 0
+  m_Flare: {fileID: 0}
+  m_RenderMode: 0
+  m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  velocitySmoothing: 0.05
-  mouseFallback: 1
-  mouseFallbackDepth: 0.4
-  fallbackCamera: {fileID: 0}
---- !u!1 &1829238432
+  m_RenderingLayerMask: 1
+  m_Lightmapping: 4
+  m_LightShadowCasterMode: 0
+  m_AreaSize: {x: 1, y: 1}
+  m_BounceIntensity: 1
+  m_ColorTemperature: 6570
+  m_UseColorTemperature: 0
+  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_UseBoundingSphereOverride: 0
+  m_UseViewFrustumForShadowCasterCull: 1
+  m_ForceVisible: 0
+  m_ShadowRadius: 0
+  m_ShadowAngle: 0
+  m_LightUnit: 1
+  m_LuxAtDistance: 1
+  m_EnableSpotReflector: 1
+--- !u!1 &1572323267
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -11568,40 +11566,9 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1829238433}
-  m_Layer: 0
-  m_Name: Carousel
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1829238433
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1829238432}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 786513411}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1940151377
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1940151378}
-  - component: {fileID: 1940151380}
-  - component: {fileID: 1940151379}
+  - component: {fileID: 1572323268}
+  - component: {fileID: 1572323270}
+  - component: {fileID: 1572323269}
   m_Layer: 0
   m_Name: Description
   m_TagString: Untagged
@@ -11609,32 +11576,32 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!224 &1940151378
+--- !u!224 &1572323268
 RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1940151377}
+  m_GameObject: {fileID: 1572323267}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1053122560}
+  m_Father: {fileID: 1020109322}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: -46}
   m_SizeDelta: {x: 0, y: 28}
   m_Pivot: {x: 0, y: 1}
---- !u!114 &1940151379
+--- !u!114 &1572323269
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1940151377}
+  m_GameObject: {fileID: 1572323267}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
@@ -11670,7 +11637,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -11720,14 +11687,94 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!222 &1940151380
+--- !u!222 &1572323270
 CanvasRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1940151377}
+  m_GameObject: {fileID: 1572323267}
   m_CullTransparentMesh: 1
+--- !u!1 &1684954501
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1684954503}
+  - component: {fileID: 1684954502}
+  m_Layer: 0
+  m_Name: PostFX
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1684954502
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1684954501}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 172515602e62fb746b5d573b38a5fe58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Core.Runtime::UnityEngine.Rendering.Volume
+  m_IsGlobal: 1
+  priority: 1
+  blendDistance: 0
+  weight: 1
+  sharedProfile: {fileID: 11400000, guid: 1c1ebb28bfc9d33419360838a497c719, type: 2}
+--- !u!4 &1684954503
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1684954501}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1829238432
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1829238433}
+  m_Layer: 0
+  m_Name: Carousel
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1829238433
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1829238432}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 786513411}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1950961245
 GameObject:
   m_ObjectHideFlags: 0
@@ -12095,8 +12142,8 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.0016
-      minScalar: 0.0008
+      scalar: 0.0016000709
+      minScalar: 0.0008000354
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -12477,7 +12524,7 @@ ParticleSystem:
     length: 5
     boxThickness: {x: 0, y: 0, z: 0}
     radiusThickness: 1
-    donutRadius: 0.03
+    donutRadius: 0.03000133
     m_Position: {x: 0, y: 0, z: 0}
     m_Rotation: {x: 0, y: 0, z: 0}
     m_Scale: {x: 1, y: 0.5, z: 1}
@@ -12559,7 +12606,7 @@ ParticleSystem:
     sphericalDirectionAmount: 0
     randomPositionAmount: 0
     radius:
-      value: 0.22
+      value: 0.22000976
       mode: 0
       spread: 0
       speed:
@@ -16606,8 +16653,8 @@ Light:
   m_Enabled: 1
   serializedVersion: 12
   m_Type: 1
-  m_Color: {r: 0.7, g: 0.8, b: 1, a: 1}
-  m_Intensity: 0.35
+  m_Color: {r: 0.85, g: 0.88, b: 0.92, a: 1}
+  m_Intensity: 0.7
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -16671,7 +16718,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2016388200}
   - component: {fileID: 2016388199}
-  - component: {fileID: 2016388198}
   m_Layer: 0
   m_Name: Viewer
   m_TagString: Untagged
@@ -16679,35 +16725,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &2016388198
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2016388197}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aae6a2e412048404aad3e0fb85357d24, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: KmaxDisplay::ViitorCloud.KmaxDisplay.StylusNavigation
-  stylus: {fileID: 0}
-  flyController: {fileID: 2016388199}
-  rigRoot: {fileID: 547090772}
-  orbitButton: 0
-  resetButton: 1
-  dollyButton: 2
-  enableDolly: 1
-  orbitMode: 1
-  orbitSpeed: 0.25
-  dragThreshold: 6
-  wristTurnGain: 1.35
-  wristDragThreshold: 1.5
-  invertWristTurn: 0
-  dollyGain: 1.6
-  tapMaxDuration: 0.6
-  resetVibrationStrength: 18
-  resetVibrationDuration: 0.035
 --- !u!114 &2016388199
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16722,7 +16739,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: KmaxDisplay::ViitorCloud.KmaxDisplay.ViewerFlyController
   rigRoot: {fileID: 547090772}
   resetHandlerSource: {fileID: 786513412}
-  enableFly: 1
+  enableFly: 0
   applyDollyToCamera: 0
   focalCenter: {x: 0, y: 0, z: 0}
   defaultDistance: 0.47
@@ -16740,7 +16757,7 @@ MonoBehaviour:
   orbitSmoothTime: 0.06
   dollySmoothTime: 0.08
   resetDuration: 0.45
-  resetKey: 114
+  resetKey: 0
   boostKey: 304
 --- !u!4 &2016388200
 Transform:
@@ -16757,135 +16774,12 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &2079480753
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2079480759}
-  - component: {fileID: 2079480758}
-  - component: {fileID: 2079480757}
-  - component: {fileID: 2079480756}
-  - component: {fileID: 2079480755}
-  - component: {fileID: 2079480754}
-  m_Layer: 0
-  m_Name: Interface
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &2079480754
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2079480753}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4694ef1d15776904da78b6b22b9d3632, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: KmaxDisplay::ViitorCloud.KmaxDisplay.UiAlwaysOnTop
-  renderQueue: 4000
-  reapplyOnEnable: 1
---- !u!114 &2079480755
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2079480753}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b822daa524cc74c44876448490061143, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: KmaxXR.Core::KmaxXR.UIScaler
-  resolution: {x: 1920, y: 1080}
-  matchWidthOrHeight: 0
-  syncAlways: 1
---- !u!114 &2079480756
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2079480753}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2bb55327b1118b54fa7a9568010a89c9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Kmax.InputModule::KmaxXR.KmaxUIRaycaster
---- !u!114 &2079480757
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2079480753}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.GraphicRaycaster
-  m_IgnoreReversedGraphics: 1
-  m_BlockingObjects: 0
-  m_BlockingMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
---- !u!223 &2079480758
-Canvas:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2079480753}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_RenderMode: 2
-  m_Camera: {fileID: 547090771}
-  m_PlaneDistance: 100
-  m_PixelPerfect: 0
-  m_ReceivesEvents: 1
-  m_OverrideSorting: 0
-  m_OverridePixelPerfect: 0
-  m_SortingBucketNormalizedSize: 0
-  m_VertexColorAlwaysGammaSpace: 0
-  m_AdditionalShaderChannelsFlag: 0
-  m_UpdateRectTransformForStandalone: 0
-  m_SortingLayerID: 0
-  m_SortingOrder: 100
-  m_TargetDisplay: 0
---- !u!224 &2079480759
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2079480753}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.0003113159, y: 0.0003113159, z: 0.0003113159}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1053122560}
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1920, y: 1080}
-  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 75452703}
   - {fileID: 786513411}
-  - {fileID: 1587860284}
   - {fileID: 2016388200}
   - {fileID: 547090770}
-  - {fileID: 2079480759}
+  - {fileID: 1684954503}
+  - {fileID: 71641773}

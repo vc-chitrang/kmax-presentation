@@ -36,6 +36,10 @@ namespace ViitorCloud.KmaxPresentation {
         public float swayDegrees = 32.0f;
         public bool pulse;
         public string anatomyTopic;
+
+        [Tooltip("Manual size over the automatic fit (owner's tuning). Changes show at once in Play; press Save scales on the director to keep them. Saved values are loaded from the tuning asset when the scene starts.")]
+        [Range(PresentationTuning.MinManualScale, PresentationTuning.MaxManualScale)]
+        public float scale = 1.0f;
     }
 
     /// <summary>
@@ -82,6 +86,23 @@ namespace ViitorCloud.KmaxPresentation {
         private bool perItemLighting = true;
         [SerializeField, Tooltip("Keeps the stage at the carousel's origin instead of in front of the rig, for a scene whose viewer orbits the rig around the model.")]
         private bool anchorStageToOrigin;
+        [SerializeField, Tooltip("Saved per-model tuning. Its manual scales are loaded into the items when the scene starts; Save scales writes them back.")]
+        private PresentationTuning tuning;
+
+        private int fitVersion;
+
+        public PresentationTuning Tuning {
+            get {
+                return tuning;
+            }
+        }
+
+        /// <summary>Goes up each time the model on stage is fitted again without being reloaded (a manual scale changed), so placement can follow.</summary>
+        public int FitVersion {
+            get {
+                return fitVersion;
+            }
+        }
 
         public bool AutoAdvance {
             get {
@@ -121,6 +142,7 @@ namespace ViitorCloud.KmaxPresentation {
             public Sequence pop;
             public bool popStarted;
             public bool refitRequested;
+            public float appliedScale = 1.0f;
         }
 
         private sealed class ExplodePart {
@@ -160,6 +182,7 @@ namespace ViitorCloud.KmaxPresentation {
                 return;
             }
 
+            LoadSavedScales();
             ResolvePlacement();
 
             if (carouselRoot != null) {
@@ -238,6 +261,10 @@ namespace ViitorCloud.KmaxPresentation {
                 Debug.LogError("[Presentation] No UI canvas above the info panel; the version label is not shown.");
             }
 
+#if !UNITY_EDITOR
+            // Browsing is an Editor tuning aid: a player is always the hands-off show, whatever the scene was saved with.
+            debugBrowse = false;
+#endif
             if (debugBrowse) {
                 StartDebugBrowse();
             }
@@ -252,10 +279,12 @@ namespace ViitorCloud.KmaxPresentation {
                 if (itemTimer >= ShowSeconds) {
                     itemTimer = 0.0f;
                 }
-                RefitIfRequested();
             } else if (autoAdvance && itemTimer >= ShowSeconds) {
                 Advance();
             }
+
+            RequestRefitIfScaleChanged();
+            RefitIfRequested();
 
             EnsureWindow(false);
             LayoutSlots();
@@ -429,6 +458,12 @@ namespace ViitorCloud.KmaxPresentation {
                 ApplyExplode(slot, 0.0f);
             }
             Quaternion spin = slot.spinner.localRotation;
+            // The fit measures in world space, so the pop (holder scale, mid-tween) and the explode draw-back (spinner scale) are set
+            // aside while it measures; otherwise a refit during the pop-in fits the model too large.
+            Vector3 holderScale = slot.holder.localScale;
+            Vector3 spinnerScale = slot.spinner.localScale;
+            slot.holder.localScale = Vector3.one;
+            slot.spinner.localScale = Vector3.one;
             slot.spinner.localRotation = Quaternion.identity;
             slot.model.localScale = Vector3.one;
             slot.model.localPosition = Vector3.zero;
@@ -437,7 +472,63 @@ namespace ViitorCloud.KmaxPresentation {
             slot.baseScale = slot.model.localScale;
             slot.holder.localRotation = Quaternion.Euler(item.tiltDegrees, 0.0f, 0.0f);
             slot.spinner.localRotation = spin;
+            slot.spinner.localScale = spinnerScale;
+            slot.holder.localScale = holderScale;
+            fitVersion++;
             LogBrowse();
+        }
+
+        /// <summary>A manual scale moved in the inspector: the model on stage is fitted again at the new size.</summary>
+        private void RequestRefitIfScaleChanged() {
+            if (!slots.ContainsKey(currentIndex)) {
+                return;
+            }
+            Slot slot = slots[currentIndex];
+            if (!Mathf.Approximately(slot.appliedScale, ManualScale(slot.item))) {
+                slot.refitRequested = true;
+            }
+        }
+
+        private static float ManualScale(PresentationItem item) {
+            return Mathf.Clamp(item.scale, PresentationTuning.MinManualScale, PresentationTuning.MaxManualScale);
+        }
+
+        /// <summary>Copies the saved manual scales from the tuning asset into the items, by title.</summary>
+        private void LoadSavedScales() {
+            if (tuning == null) {
+                return;
+            }
+            int loaded = 0;
+            for (int i = 0; i < items.Count; i++) {
+                float saved;
+                if (tuning.TryGetScale(items[i].title, out saved)) {
+                    items[i].scale = saved;
+                    loaded++;
+                }
+            }
+            if (loaded > 0) {
+                Debug.Log("[Presentation] Loaded " + loaded + " saved model scales from " + tuning.name + ".");
+            }
+        }
+
+        /// <summary>
+        /// Writes every item's manual scale into the tuning asset in memory (a scale of 1 clears the model's entry). The editor saves the
+        /// asset to disk; works in Play, so values tuned while playing are kept. Returns how many models have a scale other than 1.
+        /// </summary>
+        public int StoreScalesInTuning() {
+            if (tuning == null) {
+                Debug.LogError("[Presentation] No tuning asset is assigned to the director; the scales cannot be saved.", this);
+                return 0;
+            }
+            int stored = 0;
+            for (int i = 0; i < items.Count; i++) {
+                float value = ManualScale(items[i]);
+                tuning.SetScale(items[i].title, value);
+                if (!Mathf.Approximately(value, 1.0f)) {
+                    stored++;
+                }
+            }
+            return stored;
         }
 
         /// <summary>Index in the item list of the model shown in browse mode (0 to ItemCount - 1, the same order as the Items list).</summary>
@@ -600,6 +691,14 @@ namespace ViitorCloud.KmaxPresentation {
             return null;
         }
 
+        /// <summary>The item of the model on stage (the same object as its entry in the Items list), or null.</summary>
+        public PresentationItem GetCentreItem() {
+            if (slots.ContainsKey(currentIndex)) {
+                return slots[currentIndex].item;
+            }
+            return null;
+        }
+
         /// <summary>Title of the model on stage, or an empty string.</summary>
         public string GetCentreTitle() {
             if (slots.ContainsKey(currentIndex)) {
@@ -620,7 +719,15 @@ namespace ViitorCloud.KmaxPresentation {
                 return false;
             }
 
-            Transform spinner = slots[currentIndex].spinner;
+            Slot slot = slots[currentIndex];
+            Transform spinner = slot.spinner;
+            // The size is that of the assembled model: parts that are spread apart by the explode show are put back for the measurement
+            // and set to where the show has them afterwards, so a placement made mid-explode does not push the model back.
+            bool exploded = slot.parts.Count > 0;
+            if (exploded) {
+                ApplyExplode(slot, 0.0f);
+            }
+
             Renderer[] renderers = spinner.GetComponentsInChildren<Renderer>(true);
             bool found = false;
             for (int i = 0; i < renderers.Length; i++) {
@@ -639,6 +746,10 @@ namespace ViitorCloud.KmaxPresentation {
                     halfHeight = Mathf.Max(halfHeight, Mathf.Abs(point.y));
                     found = true;
                 }
+            }
+
+            if (exploded) {
+                ApplyExplode(slot, ExplodeCurve(itemTimer));
             }
 
             return found;
@@ -840,6 +951,12 @@ namespace ViitorCloud.KmaxPresentation {
             }
             MakeDoubleSided(model);
             CalibrateMaterials(model);
+            if (item.group == "Jewellery") {
+                SoftenJewelleryShine(model);
+            }
+            if (item.title == "Solar System") {
+                MakeOrbitPathsVisible(model);
+            }
             if (anatomy) {
                 AttachAnatomyBehaviour(model, item.anatomyTopic);
             }
@@ -873,8 +990,15 @@ namespace ViitorCloud.KmaxPresentation {
             if (exhibit == null) {
                 Type type = FindType("ViitorCloud.KMaxPCBAssembly.PcbWorkingExhibit");
                 if (type != null) {
-                    slot.model.gameObject.AddComponent(type);
+                    exhibit = slot.model.gameObject.AddComponent(type);
                 }
+            }
+            // Owner, 2026-11-26: the presentation shows the board with its LED breathing, without the current-flow sparks and glow.
+            PropertyInfo showFlow = exhibit != null ? exhibit.GetType().GetProperty("ShowCurrentFlow") : null;
+            if (showFlow != null) {
+                showFlow.SetValue(exhibit, false, null);
+            } else if (exhibit != null) {
+                Debug.LogWarning("[Presentation] PcbWorkingExhibit has no ShowCurrentFlow; the PCB current flow stays visible.");
             }
             Transform[] children = slot.model.GetComponentsInChildren<Transform>(true);
             for (int i = 0; i < children.Length; i++) {
@@ -1004,8 +1128,86 @@ namespace ViitorCloud.KmaxPresentation {
         }
 
         private static readonly int CullId = Shader.PropertyToID("_Cull");
+        private static readonly int RoughnessFactorId = Shader.PropertyToID("roughnessFactor");
+        private static readonly int MetallicFactorId = Shader.PropertyToID("metallicFactor");
+        /// <summary>Lowest roughness a jewellery material keeps (about 0.17 as shipped; 0.42 still glared in the showcase), so metal reads as satin and not as a mirror.</summary>
+        private const float JewelleryMinRoughness = 0.55f;
+        private const float JewelleryMaxMetallic = 0.80f;
+        /// <summary>Width, in model units, of a planet's path in the Solar System (it was 0.0012).</summary>
+        private const float OrbitPathWidth = 0.0045f;
+        /// <summary>Owner, 2026-11-26: every planet path is dark grey.</summary>
+        private static readonly Color OrbitPathColour = new Color(0.36f, 0.37f, 0.40f, 1.0f);
 
         /// <summary>Every surface draws both faces, so a cut-away or an open shell never shows its back as a hole.</summary>
+        /// <summary>
+        /// Owner, 2026-11-26: the jewellery shone too much under the showcase lights. Metal reflects the whole studio, so a mirror-smooth
+        /// metal (the packs ship gold and silver at a roughness of about 0.17) turns into a white glare. The roughness is raised to a satin
+        /// finish (glTF materials: roughnessFactor; URP Lit materials: smoothness), which keeps the colour and the sparkle of the stones.
+        /// </summary>
+        private static void SoftenJewelleryShine(GameObject model) {
+            Renderer[] renderers = model.GetComponentsInChildren<Renderer>(true);
+            for (int i = 0; i < renderers.Length; i++) {
+                if (!(renderers[i] is MeshRenderer) && !(renderers[i] is SkinnedMeshRenderer)) {
+                    continue;
+                }
+
+                Material[] materials = renderers[i].materials;
+                for (int m = 0; m < materials.Length; m++) {
+                    Material mat = materials[m];
+                    if (mat == null) {
+                        continue;
+                    }
+
+                    if (mat.HasProperty(RoughnessFactorId)) {
+                        mat.SetFloat(RoughnessFactorId, Mathf.Max(mat.GetFloat(RoughnessFactorId), JewelleryMinRoughness));
+                    }
+                    if (mat.HasProperty(MetallicFactorId)) {
+                        mat.SetFloat(MetallicFactorId, Mathf.Min(mat.GetFloat(MetallicFactorId), JewelleryMaxMetallic));
+                    }
+                    if (mat.HasProperty("_Smoothness")) {
+                        mat.SetFloat("_Smoothness", Mathf.Min(mat.GetFloat("_Smoothness"), 1.0f - JewelleryMinRoughness));
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Owner, 2026-11-26: show the path of each planet. The preview prefab already has a ring per planet, but a hair-thin, dim blue
+        /// one that is lost against the stars. Each ring is made wider and solid dark grey (owner's choice), so every path reads at a glance.
+        /// </summary>
+        private static void MakeOrbitPathsVisible(GameObject model) {
+            Color pathColour = OrbitPathColour;
+            string[] planets = new string[] { "Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune" };
+            LineRenderer[] lines = model.GetComponentsInChildren<LineRenderer>(true);
+            int widened = 0;
+            for (int i = 0; i < lines.Length; i++) {
+                for (int p = 0; p < planets.Length; p++) {
+                    if (lines[i].name.StartsWith(planets[p], StringComparison.OrdinalIgnoreCase)) {
+                        lines[i].widthMultiplier = OrbitPathWidth;
+                        lines[i].startColor = pathColour;
+                        lines[i].endColor = pathColour;
+                        // The ring material carries a dim blue tint (alpha 0.4) that multiplies the line colour; this copy of it is
+                        // neutral, so the path shows in its own colour.
+                        Material pathMaterial = lines[i].material;
+                        if (pathMaterial != null) {
+                            if (pathMaterial.HasProperty("_BaseColor")) {
+                                pathMaterial.SetColor("_BaseColor", Color.white);
+                            }
+                            if (pathMaterial.HasProperty("_Color")) {
+                                pathMaterial.SetColor("_Color", Color.white);
+                            }
+                        }
+                        widened++;
+                        break;
+                    }
+                }
+            }
+
+            if (widened == 0) {
+                Debug.LogWarning("[Presentation] The Solar System has no planet path lines to make visible.");
+            }
+        }
+
         private static void MakeDoubleSided(GameObject model) {
             Renderer[] renderers = model.GetComponentsInChildren<Renderer>(true);
             for (int i = 0; i < renderers.Length; i++) {
@@ -1164,7 +1366,8 @@ namespace ViitorCloud.KmaxPresentation {
                 }
                 scale = scale * 0.90f;
             }
-            slot.model.localScale = slot.model.localScale * scale;
+            slot.appliedScale = ManualScale(item);
+            slot.model.localScale = slot.model.localScale * (scale * slot.appliedScale);
 
             Bounds scaled = MeshBounds(slot.model, out found);
             Vector3 centreLocal;
