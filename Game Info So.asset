@@ -22,8 +22,6 @@ MonoBehaviour:
     scenes:
     - active: 1
       scene: {fileID: 102900000, guid: f24722641307be648a95cdd071155692, type: 3}
-    - active: 0
-      scene: {fileID: 102900000, guid: 588f978368a69e246883706202789635, type: 3}
     photonID: 
     agoraID: 
     projectSettings:
